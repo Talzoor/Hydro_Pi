@@ -81,7 +81,7 @@ def db_write_record():
     time_time = _time_now.time().strftime('%H:%M:%S')
 
 #    db.connect()
-    # test
+    
     #db.create_tables([models.PulseData])
     models.PulseData.create_table()
     _tmp_Pulses = random.randint(1, 2000)
