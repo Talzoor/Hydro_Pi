@@ -1,0 +1,92 @@
+Time:2018-06-26 11:44:39.742201, Pulses:19, elapsed:0:00:01.102126
+Time:2018-06-26 11:44:46.766737, Pulses:76, elapsed:0:00:04.432320
+---Started:2018-06-26 14:30:33.862814---
+---Started:2018-06-26 14:54:09.686152---
+---Started:2018-06-26 15:10:21.721034---
+---Started:2018-06-26 15:15:34.365209---
+---Started:2018-06-26 15:35:47.595198---
+---Started:2018-06-26 23:10:20.252305---
+---Started:2018-06-26 23:34:30.688105---
+Time:2018-06-27 12:07:14.222035, Pulses:2486, elapsed:0:02:19.577767
+Time:2018-06-27 16:38:26.247013, Pulses:1907, elapsed:0:01:50.274507
+---Started:2018-06-28 08:23:03.864285---
+---Started:2018-06-28 08:25:58.135827---
+---Started:2018-06-28 08:51:03.294367---
+---Started:2018-06-28 09:23:56.414873---
+---Started:2018-06-28 09:37:37.682718---
+---Started:2018-06-28 11:14:33.088640---
+Time:2018-06-28 11:16:57, Pulses:21, elapsed:0:00:01.427248
+---Started:2018-06-28 11:20:02.581973---
+---Started:2018-06-28 11:32:02.814267---
+Time:2018-06-28 11:32:55, Pulses:63, elapsed:0:00:03
+Time:2018-06-28 17:41:06, Pulses:2105, elapsed:0:01:58
+---Started:2018-06-28 18:15:39.117896---
+---Started:2018-06-29 07:11:07.855628---
+---Started:2018-06-29 07:23:38.114536---
+Time:2018-06-29 13:59:40, Pulses:2109, elapsed:0:01:57
+---Started:2018-07-07 22:50:58.102806---
+---Started:2018-07-07 23:04:12.861089---
+---Started:2018-07-07 23:06:47.995069---
+p_cont_type:<class 'int'>
+Time:2018-07-08 08:10:04, Pulses:1141, Litters:1.58, elapsed:0:00:31
+p_cont_type:<class 'int'>
+Time:2018-07-08 13:26:44, Pulses:1150, Litters:1.593, elapsed:0:00:31
+p_cont_type:<class 'int'>
+Time:2018-07-08 15:37:32, Pulses:1128, Litters:1.562, elapsed:0:00:30
+p_cont_type:<class 'int'>
+Time:2018-07-08 17:27:35, Pulses:979, Litters:1.356, elapsed:0:00:26
+p_cont_type:<class 'int'>
+Time:2018-07-08 23:50:20, Pulses:1120, Litters:1.551, elapsed:0:00:31
+p_cont_type:<class 'int'>
+Time:2018-07-09 13:55:23, Pulses:1605, Litters:2.223, elapsed:0:00:43
+p_cont_type:<class 'int'>
+Time:2018-07-09 15:42:37, Pulses:1030, Litters:1.427, elapsed:0:00:27
+p_cont_type:<class 'int'>
+Time:2018-07-09 17:44:04, Pulses:1054, Litters:1.46, elapsed:0:00:28
+p_cont_type:<class 'int'>
+Time:2018-07-10 09:08:45, Pulses:1144, Litters:1.584, elapsed:0:00:31
+p_cont_type:<class 'int'>
+Time:2018-07-10 13:28:25, Pulses:1005, Litters:1.392, elapsed:0:00:27
+---Started:2018-07-10 14:05:27.492343---
+p_cont_type:<class 'int'>
+Time:2018-07-10 22:58:12, Pulses:1273, Litters:1.763, elapsed:0:00:35
+p_cont_type:<class 'int'>
+Time:2018-07-11 15:11:55, Pulses:2640, Litters:3.656, elapsed:0:01:06
+p_cont_type:<class 'int'>
+Time:2018-07-11 18:28:38, Pulses:1079, Litters:1.494, elapsed:0:00:30
+p_cont_type:<class 'int'>
+Time:2018-07-12 16:00:46, Pulses:3098, Litters:4.291, elapsed:0:01:25
+p_cont_type:<class 'int'>
+Time:2018-07-12 18:35:11, Pulses:890, Litters:1.233, elapsed:0:00:24
+p_cont_type:<class 'int'>
+Time:2018-07-13 14:14:37, Pulses:1934, Litters:2.679, elapsed:0:00:52
+p_cont_type:<class 'int'>
+Time:2018-07-13 17:21:52, Pulses:1165, Litters:1.614, elapsed:0:00:32
+p_cont_type:<class 'int'>
+Time:2018-07-14 11:02:33, Pulses:1499, Litters:2.076, elapsed:0:00:41
+p_cont_type:<class 'int'>
+Time:2018-07-14 14:50:04, Pulses:1307, Litters:1.81, elapsed:0:00:35
+p_cont_type:<class 'int'>
+Time:2018-07-14 18:17:48, Pulses:1314, Litters:1.82, elapsed:0:00:36
+p_cont_type:<class 'int'>
+Time:2018-07-15 13:18:22, Pulses:1816, Litters:2.515, elapsed:0:00:49
+p_cont_type:<class 'int'>
+Time:2018-07-15 16:03:02, Pulses:1317, Litters:1.824, elapsed:0:00:35
+p_cont_type:<class 'int'>
+Time:2018-07-15 20:39:17, Pulses:1326, Litters:1.837, elapsed:0:00:37
+p_cont_type:<class 'int'>
+Time:2018-07-16 12:44:44, Pulses:1321, Litters:1.83, elapsed:0:00:34
+p_cont_type:<class 'int'>
+Time:2018-07-16 15:26:36, Pulses:1247, Litters:1.727, elapsed:0:00:33
+p_cont_type:<class 'int'>
+Time:2018-07-16 18:56:54, Pulses:1279, Litters:1.771, elapsed:0:00:35
+p_cont_type:<class 'int'>
+Time:2018-07-17 08:36:19, Pulses:13728, Litters:19.013, elapsed:0:06:01
+p_cont_type:<class 'int'>
+Time:2018-07-17 08:36:52, Pulses:19, Litters:0.026, elapsed:0:00:00
+p_cont_type:<class 'int'>
+Time:2018-07-17 08:36:57, Pulses:14, Litters:0.019, elapsed:0:00:00
+p_cont_type:<class 'int'>
+Time:2018-07-18 13:01:58, Pulses:2451, Litters:3.395, elapsed:0:01:06
+p_cont_type:<class 'int'>
+Time:2018-07-18 21:16:12, Pulses:2336, Litters:3.235, elapsed:0:01:05
