@@ -19,7 +19,7 @@ def check_flow(_int_period):
     time_now = millis
     while (time_now - millis) < (_int_period * 1000):  # wait to see if flowing
         time_now = int(round(time.time() * 1000))
-        if
+        if True:
         sleep(0.5/1000.0)   # 0.5mS
 
 
