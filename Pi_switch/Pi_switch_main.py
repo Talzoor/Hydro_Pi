@@ -7,7 +7,6 @@ import RPi.GPIO as GPIO
 import socket
 from datetime import datetime
 import linecache
-from logger import Logger
 
 PIN_TAP_1           = 22
 PIN_TAP_2           = 27
@@ -31,8 +30,8 @@ TIME_S = int(round(time.time()))
 DEBUG_FLOWING_SWITCH = 26
 
 
-def init_flow_pin():
-    global FLOW_PIN
+def init_import_project_modules():
+    global FLOW_PIN, logger_class
     _tmp_dir = sys.argv[0]
     this_project_dir = _tmp_dir[:_tmp_dir.rfind("/")]
     main_project_dir = this_project_dir[:this_project_dir.rfind("/")]
@@ -40,6 +39,9 @@ def init_flow_pin():
     sys.path.append(main_project_dir)
     from Pi_flow import Pi_flow_main
     FLOW_PIN = Pi_flow_main.FLOW_PIN
+
+    from logger import Logger
+    logger_class = Logger("test1408.log", "Pi switch")
 
 
 def micro_s_func(var=None):
@@ -68,8 +70,8 @@ def micro_s_func(var=None):
 
 
 def logger_init():
-    global LOG
-    logger_class = Logger("test1408.log", "Pi switch")
+    global LOG, logger_class
+
     LOG = logger_class.logger
     log_file_path = logger_class.log_file_path
 
@@ -78,6 +80,7 @@ def logger_init():
 
 def setup():
     try:
+        init_import_project_modules()
         log_file_path = logger_init()
 
         GPIO.setmode(GPIO.BCM)
@@ -93,7 +96,6 @@ def setup():
         GPIO.add_event_detect(FLOW_PIN,         GPIO.FALLING,    callback=flow_in_count, bouncetime=5)
 
         print_header(log_file_path)
-        init_flow_pin()
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
         open_solenoid(0)
 
