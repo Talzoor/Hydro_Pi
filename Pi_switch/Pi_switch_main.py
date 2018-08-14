@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 import socket
 from datetime import datetime
 import linecache
-from logger import Logger
+from .logger import Logger
 
 PIN_TAP_1           = 22
 PIN_TAP_2           = 27
