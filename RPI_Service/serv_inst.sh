@@ -11,18 +11,18 @@ echo "service name is:"$SERVICE_NAME""
 
 echo " " >> "$SERVICE_NAME"
 
-echo "[Unit]                        "   >> "$SERVICE_NAME"
-echo "Description="$DESCRIPTION"    "   >> "$SERVICE_NAME"
-echo "After=multi-user.target       "   >> "$SERVICE_NAME"
+echo "[Unit]                                    "   >> "$SERVICE_NAME"
+echo "Description="$DESCRIPTION"                "   >> "$SERVICE_NAME"
+echo "After=multi-user.target                   "   >> "$SERVICE_NAME"
 
-echo "                              "   >> "$SERVICE_NAME"
-echo "[Service]                     "   >> "$SERVICE_NAME"
-echo "Type=simple                   "   >> "$SERVICE_NAME"
-echo "ExecStart=/usr/bin/python3 "PYTHON_FILE ${!PYTHON_FILE}"  " >> "$SERVICE_NAME"
-echo "Restart=on-abort              "   >> "$SERVICE_NAME"
+echo "                                          "   >> "$SERVICE_NAME"
+echo "[Service]                                 "   >> "$SERVICE_NAME"
+echo "Type=simple                               "   >> "$SERVICE_NAME"
+echo "ExecStart=/usr/bin/python3 "$PYTHON_FILE  "   >> "$SERVICE_NAME"
+echo "Restart=on-abort                          "   >> "$SERVICE_NAME"
 
-echo "                              "   >> "$SERVICE_NAME"
-echo "[Install]                     "   >> "$SERVICE_NAME"
-echo "WantedBy=multi-user.target    "   >> "$SERVICE_NAME"
+echo "                                          "   >> "$SERVICE_NAME"
+echo "[Install]                                 "   >> "$SERVICE_NAME"
+echo "WantedBy=multi-user.target                "   >> "$SERVICE_NAME"
 
 cd /lib/systemd/system/
