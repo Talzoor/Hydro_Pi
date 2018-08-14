@@ -6,13 +6,14 @@ from datetime import datetime
 import sys
 import os
 from peewee import *
+import socket
 #import init
 #from flask_peewee.admin import ModelAdmin
 
 
 import argparse
 import random
-import models
+# import models
 
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -154,6 +155,8 @@ def sum_flow_event():
 def print_header():
     print('--- Main started ({}) ---'.format(datetime.now().strftime('%Y-%m-%d  %H:%M:%S')))
     print('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version))
+    name_rpi = socket.gethostname()
+    print("running on: {}".format(name_rpi))
     print('file:{}'.format(FULL_FILE_NAME))
     print('mL/P const:{}'.format(CONST_mL_P))
 
@@ -178,7 +181,7 @@ def main():
     # i = 0
     pulse_running = False
     try:
-        GPIO.add_event_detect(14, GPIO.BOTH, callback=flow_count)
+        GPIO.add_event_detect(14, GPIO.BOTH, callback=flow_count, bouncetime=50)
         pulse_count = 0
         no_pulse_count = 0
 
