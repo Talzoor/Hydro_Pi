@@ -3,7 +3,7 @@ import time
 from time import sleep
 import sys
 import RPi.GPIO as GPIO
-from Pi_flow import Pi_flow_main
+#from Pi_flow import Pi_flow_main
 import socket
 from datetime import datetime
 import linecache
@@ -12,7 +12,7 @@ from logger import Logger
 PIN_TAP_1           = 22
 PIN_TAP_2           = 27
 PIN_MICRO_SWITCH    = 17
-FLOW_PIN            = Pi_flow_main.FLOW_PIN
+FLOW_PIN            = 0 # Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
 CHECK_EVERY         = 1  # ms(100)    # 100mS
@@ -29,6 +29,17 @@ MICRO_S_CHANGE      = False
 TIME_S = int(round(time.time()))
 
 DEBUG_FLOWING_SWITCH = 26
+
+
+def init_flow_pin():
+    global FLOW_PIN
+    _tmp_dir = sys.argv[0]
+    this_project_dir = _tmp_dir[:_tmp_dir.rfind("/")]
+    main_project_dir = this_project_dir[:this_project_dir.rfind("/")]
+
+    sys.path.append(main_project_dir)
+    from Pi_flow import Pi_flow_main
+    FLOW_PIN = Pi_flow_main.FLOW_PIN
 
 
 def micro_s_func(var=None):
@@ -82,6 +93,7 @@ def setup():
         GPIO.add_event_detect(FLOW_PIN,         GPIO.FALLING,    callback=flow_in_count, bouncetime=5)
 
         print_header(log_file_path)
+        init_flow_pin()
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
         open_solenoid(0)
 
@@ -95,6 +107,8 @@ def print_header(_log_file_path):
     name_rpi = socket.gethostname()
     LOG.info("running on: {}".format(name_rpi))
     LOG.info("log file: {}".format(_log_file_path))
+    LOG.debug("sys.argv[0] is {}".format(repr(sys.argv[0])))
+    LOG.debug("__file__ is {}".format(repr(__file__)))
 
 
 def main():
