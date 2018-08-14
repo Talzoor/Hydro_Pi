@@ -9,13 +9,12 @@ cd /lib/systemd/system/
 sudo sh -c 'echo " " >> "$SERVICE_NAME"'
 sudo sh -c 'echo "[Unit]" >> "$SERVICE_NAME"'
 
-# Description=Hello World
-# After=multi-user.target
-
-# [Service]
-# Type=simple
-# ExecStart=/usr/bin/python3 "PYTHON_FILE ${!PYTHON_FILE}"
-# Restart=on-abort
-
-# [Install]
-# WantedBy=multi-user.target
+sudo sh -c 'echo "[Unit]                        "   >> "$SERVICE_NAME"'
+sudo sh -c 'echo "Description="$DESCRIPTION"    "   >> "$SERVICE_NAME"'
+sudo sh -c 'echo "After=multi-user.target       "   >> "$SERVICE_NAME"'
+sudo sh -c 'echo "[Service]                     " >> "$SERVICE_NAME"'
+sudo sh -c 'echo "Type=simple                   " >> "$SERVICE_NAME"'
+sudo sh -c 'echo "ExecStart=/usr/bin/python3 "PYTHON_FILE ${!PYTHON_FILE}"  " >> "$SERVICE_NAME"'
+sudo sh -c 'echo "Restart=on-abort              " >> "$SERVICE_NAME"'
+sudo sh -c 'echo "[Install]                     " >> "$SERVICE_NAME"'
+sudo sh -c 'echo "WantedBy=multi-user.target    " >> "$SERVICE_NAME"'
