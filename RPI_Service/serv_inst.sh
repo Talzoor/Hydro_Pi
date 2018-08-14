@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 # Script to create 'x' service
 
 SERVICE_NAME="TEST.service"
