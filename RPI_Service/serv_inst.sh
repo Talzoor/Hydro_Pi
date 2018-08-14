@@ -6,7 +6,7 @@ DESCRIPTION="TESTING"
 PYTHON_FILE="/home/pi/PythonScripts/Hydro_Pi/Pi_switch/Pi_switch_main.py"
 SYS_SERVICE_DIR="/lib/systemd/system/"
 
-rm "$TEST.service"
+rm "$SERVICE_NAME"
 
 echo "$PWD"
 echo "service name is :"$SERVICE_NAME""
@@ -27,8 +27,8 @@ echo "                                          "   >> "$SERVICE_NAME"
 echo "[Install]                                 "   >> "$SERVICE_NAME"
 echo "WantedBy=multi-user.target                "   >> "$SERVICE_NAME"
 
-echo "\nCreated."
+echo "----Created.----"
 
 sudo cp "$SERVICE_NAME" "$SYS_SERVICE_DIR"
 
-echo "\nCopied to :"$SYS_SERVICE_DIR" "
+echo "----Copied to :"$SYS_SERVICE_DIR" ----"
