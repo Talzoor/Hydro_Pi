@@ -36,3 +36,9 @@ echo "----Created.----"
 sudo cp "$SERVICE_NAME" "$SYS_SERVICE_DIR"
 
 echo "----Copied to :"$SYS_SERVICE_DIR" ----"
+
+sudo chmod 644 ""$SYS_SERVICE_DIR""$SERVICE_NAME""
+chmod +x "$PYTHON_FILE"
+sudo systemctl daemon-reload
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl start "$SERVICE_NAME"
