@@ -13,10 +13,15 @@ try:
 except ImportError:
     from tools.logger import Logger
 
+try:
+    from .Pi_flow import Pi_flow_main
+except ImportError:
+    from Pi_flow import Pi_flow_main
+
 PIN_TAP_1           = 22
 PIN_TAP_2           = 27
 PIN_MICRO_SWITCH    = 17
-FLOW_PIN            = 14    # Pi_flow_main.FLOW_PIN
+FLOW_PIN            = Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
 CHECK_EVERY         = 1  # ms(100)    # 100mS
