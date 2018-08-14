@@ -7,11 +7,12 @@ import RPi.GPIO as GPIO
 import socket
 from datetime import datetime
 import linecache
+from logger import Logger
 
 PIN_TAP_1           = 22
 PIN_TAP_2           = 27
 PIN_MICRO_SWITCH    = 17
-FLOW_PIN            = 0 # Pi_flow_main.FLOW_PIN
+FLOW_PIN            = 14    # Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
 CHECK_EVERY         = 1  # ms(100)    # 100mS
@@ -31,17 +32,11 @@ DEBUG_FLOWING_SWITCH = 26
 
 
 def init_import_project_modules():
-    global FLOW_PIN, logger_class
     _tmp_dir = sys.argv[0]
     this_project_dir = _tmp_dir[:_tmp_dir.rfind("/")]
     main_project_dir = this_project_dir[:this_project_dir.rfind("/")]
 
     sys.path.append(main_project_dir)
-    from Pi_flow import Pi_flow_main
-    FLOW_PIN = Pi_flow_main.FLOW_PIN
-
-    from logger import Logger
-    logger_class = Logger("test1408.log", "Pi switch")
 
 
 def micro_s_func(var=None):
@@ -70,8 +65,9 @@ def micro_s_func(var=None):
 
 
 def logger_init():
-    global LOG, logger_class
+    global LOG
 
+    logger_class = Logger("test1408.log", "Pi switch")
     LOG = logger_class.logger
     log_file_path = logger_class.log_file_path
 
