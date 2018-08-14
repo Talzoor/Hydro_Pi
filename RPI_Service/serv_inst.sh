@@ -1,10 +1,14 @@
 #!/bin/bash
-# Script to create 'x' service
+# Created by Tal Zoor
+# Script to create 'SERVICE_NAME' service
+# fill in 4 variables -->
 
-SERVICE_NAME="TEST.service"
-DESCRIPTION="TESTING"
+SERVICE_NAME="Pi_switch.service"
+DESCRIPTION="Controling taps"
 PYTHON_FILE="/home/pi/PythonScripts/Hydro_Pi/Pi_switch/Pi_switch_main.py"
 SYS_SERVICE_DIR="/lib/systemd/system/"
+
+# Start of script
 
 rm "$SERVICE_NAME"
 
