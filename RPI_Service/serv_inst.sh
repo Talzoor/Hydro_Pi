@@ -1,7 +1,7 @@
 #!/bin/bash
 # Created by Tal Zoor
 # Script to create 'SERVICE_NAME' service
-# fill in 4 variables -->
+# fill in 4 (or just first 3) variables -->
 
 SERVICE_NAME="Pi_switch.service"
 DESCRIPTION="Controling taps"
