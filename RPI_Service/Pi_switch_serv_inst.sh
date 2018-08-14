@@ -5,7 +5,7 @@
 
 SERVICE_NAME="Pi_switch.service"
 DESCRIPTION="Controling taps"
-PYTHON_FILE="/home/pi/PythonScripts/Hydro_Pi/Pi_switch/Pi_switch_main.py"
+PYTHON_FILE="/home/pi/PythonScripts/Hydro_Pi/run.py"
 SYS_SERVICE_DIR="/lib/systemd/system/"
 
 # Start of script
