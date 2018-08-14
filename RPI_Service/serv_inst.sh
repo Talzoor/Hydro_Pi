@@ -7,6 +7,8 @@ PYTHON_FILE="/home/pi/PythonScripts/Hydro_Pi/TEMP/Pi_switch/Pi_switch_main.py"
 
 cd /lib/systemd/system/
 echo "$PWD"
+echo "service name is:"$SERVICE_NAME""
+
 sudo sh -c 'echo " " >> "$SERVICE_NAME"'
 sudo sh -c 'echo "[Unit]" >> "$SERVICE_NAME"'
 
