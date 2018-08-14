@@ -278,8 +278,11 @@ def raise_exception(_str_func):
         raise KeyboardInterrupt
     close(99)
 
-if __name__ == '__main__':
+def run():
     setup()
     main()
+
+if __name__ == '__main__':
+    run()
 
 
