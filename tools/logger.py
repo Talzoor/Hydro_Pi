@@ -1,7 +1,9 @@
 import logging
 import os
 
-class Logger():
+
+class Logger:
+
     def __init__(self, log_file_name="test.log", module_name=None):
         full_root_script_path = os.getcwd()
         self.log_file_path = "{}/{}".format(full_root_script_path, log_file_name)
