@@ -18,8 +18,8 @@ try:
 except ImportError:
     from Pi_flow import Pi_flow_main
 
-PIN_TAP_1           = 22
-PIN_TAP_2           = 27
+PIN_TAP_1           = 2
+PIN_TAP_2           = 3
 PIN_MICRO_SWITCH    = 17
 FLOW_PIN            = Pi_flow_main.FLOW_PIN
 
@@ -32,6 +32,7 @@ SOLENOID_OPEN       = 0
 NEED_TO_CLOSE       = 0     # if 0 ok, if num = no. of failed attempts
 
 LOG                 = None      # logger instance
+LOG_NAME            = "Pi_switch.log"
 
 MICRO_S_CHANGE      = False
 
@@ -74,9 +75,9 @@ def micro_s_func(var=None):
 
 
 def logger_init():
-    global LOG
+    global LOG, LOG_NAME
 
-    logger_class = Logger("test1408.log", "Pi switch")
+    logger_class = Logger(LOG_NAME, "Pi switch")
     LOG = logger_class.logger
     log_file_path = logger_class.log_file_path
 
@@ -102,7 +103,7 @@ def setup():
 
         print_header(log_file_path)
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
-        open_solenoid(0)
+        # open_solenoid(0)
 
     except:
         raise_exception("setup")
@@ -240,17 +241,17 @@ def open_solenoid(_int_tap_number):
         if _int_tap_number == 1:
             to_close    =  [PIN_TAP_2]
             to_open     =  [PIN_TAP_1]
-            LOG.info("OPENING tap 1")
+            LOG.info("OPENING tap 1({})".format([PIN_TAP_1]))
 
         if _int_tap_number == 2:
             to_close    =  [PIN_TAP_1]
             to_open     =  [PIN_TAP_2]
-            LOG.info("CLOSING tap 1, OPENING 2")
+            LOG.info("CLOSING tap 1({}), OPENING 2({})".format([PIN_TAP_1], [PIN_TAP_2]))
 
         if _int_tap_number == 0:
             to_close    = [PIN_TAP_1, PIN_TAP_2]
             to_open     = [0]
-            LOG.info("closing taps 1 and 2")
+            LOG.info("closing taps 1({}) and 2({})".format([PIN_TAP_1], [PIN_TAP_2]))
 
         for tap_to_close in to_close:
             if not tap_to_close == 0:
