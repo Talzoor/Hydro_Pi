@@ -25,6 +25,7 @@ FLOW_PIN            = Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
 CHECK_EVERY         = 1  # ms(100)    # 100mS
+DEBUG_PRINT_EVERY   = 60
 
 FLOW_COUNT          = 0
 SOLENOID_OPEN       = 0
@@ -39,6 +40,7 @@ MICRO_S_CHANGE      = False
 TIME_S = int(round(time.time()))
 
 DEBUG_FLOWING_SWITCH = 26
+DEBUG                = True
 
 
 def init_import_project_modules():
@@ -58,7 +60,7 @@ def micro_s_func(var=None):
         # GPIO.output(PIN_TAP_1, int(state))
         # GPIO.output(PIN_TAP_2, int(state))
 
-        LOG.debug("State: #{}#".format(state))
+        LOG.debug("State: {}".format(state))
         WATER_LEVEL_SWITCH = state
         MICRO_S_CHANGE = True
         if state:
@@ -79,10 +81,9 @@ def logger_init():
     running_file = sys.argv[0]
     running_path = str(running_file)[:running_file.rfind("/")]
     log_file_full_path = "{}/{}".format(running_path, LOG_NAME)
-    print(log_file_full_path)
     logger_class = Logger(log_file_full_path, "Pi switch")
     LOG = logger_class.logger
-    log_file_path = logger_class.log_file_path
+    log_file_path = logger_class.log_file_name
 
     return log_file_path
 
@@ -113,7 +114,8 @@ def setup():
 
 
 def print_header(_log_file_path):
-    LOG.info('\n\n--- Main started ({}) ---'.format(datetime.now().strftime('%Y-%m-%d  %H:%M:%S')))
+    str_debug = (DEBUG is True) and " DEBUG MODE" or ""
+    LOG.info('\n\n--- Main started ({}){} ---'.format(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'), str_debug))
     LOG.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
     name_rpi = socket.gethostname()
     LOG.info("running on: {}".format(name_rpi))
@@ -126,8 +128,11 @@ def main():
     global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
     try:
         LOG.debug("Flow_pin:{}".format(FLOW_PIN))
+        time_start = int(round(time.time()))
+        debug_print = True
+
         while True:
-            time_time = datetime.now().time().strftime('%H:%M:%S')
+            time_now = int(round(time.time()))
 
             if WATER_LEVEL_SWITCH:
                 MICRO_S_CHANGE = False
@@ -173,10 +178,17 @@ def main():
                             something_wrong()
                             # error! send email DRIPPING
                     else:
-                        LOG.debug("all good, all closed")
+                        if debug_print: LOG.debug("all good, all closed")
 
-            LOG.debug("flowing:{}".format(flowing))
+            if debug_print: LOG.debug("flowing:{}".format(flowing))
             sleep(CHECK_EVERY)
+
+            debug_print = False
+
+            if time_now - time_start > DEBUG_PRINT_EVERY:
+                time_start = time_now
+                debug_print = True
+
 
     except KeyboardInterrupt:
         LOG.info("Keyboard Exc.")
@@ -197,7 +209,7 @@ def check_flow(_int_period):
 
     while (time_now - time_start) < (_int_period):  # wait to see if flowing
         sleep(ms(5))  # 0.5mS
-        flow_in_count_prog()
+        if DEBUG: flow_in_count_prog()
         time_now = int(round(time.time()))
         if MICRO_S_CHANGE:
             MICRO_S_CHANGE = False
@@ -287,7 +299,9 @@ def raise_exception(_str_func):
         raise KeyboardInterrupt
     close(99)
 
-def run():
+def run(debug=False):
+    global DEBUG
+    DEBUG = debug
     setup()
     main()
 

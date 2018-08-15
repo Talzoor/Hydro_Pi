@@ -7,8 +7,8 @@ class Logger:
     def __init__(self, log_file_full_name="test.log", module_name=None):
         # full_root_script_path = os.getcwd()
         # self.log_file_path = "{}/{}".format(full_root_script_path, log_file_name)
-        self.log_file_path = log_file_full_name
-        self.log_file_name = self.log_file_path
+        # self.log_file_path = log_file_full_name
+        self.log_file_name = log_file_full_name
 
         if module_name is None:
             self.module_name = str(__name__)
@@ -19,7 +19,7 @@ class Logger:
         self.logger = logging.getLogger(self.module_name)
         self.logger.setLevel(logging.DEBUG)
 
-        file_h = logging.FileHandler(self.log_file_path)
+        file_h = logging.FileHandler(self.log_file_name)
         file_h.setLevel(logging.INFO)
 
         # create console handler with a higher log level
