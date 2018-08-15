@@ -12,11 +12,14 @@ try:
     from .tools.logger import Logger
 except ImportError:
     from tools.logger import Logger
-
 try:
     from .Pi_flow import Pi_flow_main
 except ImportError:
     from Pi_flow import Pi_flow_main
+try:
+    from .tools.email_script import SendEmail
+except ImportError:
+    from tools.email_script import SendEmail
 
 PIN_TAP_1           = 2
 PIN_TAP_2           = 3
@@ -34,6 +37,7 @@ NEED_TO_CLOSE       = 0     # if 0 ok, if num = no. of failed attempts
 
 LOG                 = None      # logger instance
 LOG_NAME            = "Pi_switch.log"
+LOG_FILE_W_PATH     = ""
 
 MICRO_S_CHANGE      = False
 
@@ -77,21 +81,19 @@ def micro_s_func(var=None):
 
 
 def logger_init():
-    global LOG, LOG_NAME
+    global LOG, LOG_NAME, LOG_FILE_W_PATH
     running_file = sys.argv[0]
     running_path = str(running_file)[:running_file.rfind("/")]
     log_file_full_path = "{}/{}".format(running_path, LOG_NAME)
     logger_class = Logger(log_file_full_path, "Pi switch")
     LOG = logger_class.logger
-    log_file_path = logger_class.log_file_name
-
-    return log_file_path
+    LOG_FILE_W_PATH = logger_class.log_file_name
 
 
 def setup():
     try:
         init_import_project_modules()
-        log_file_path = logger_init()
+        logger_init()
 
         GPIO.setmode(GPIO.BCM)
 
@@ -105,7 +107,7 @@ def setup():
         GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=micro_s_func, bouncetime=2)
         GPIO.add_event_detect(FLOW_PIN,         GPIO.FALLING,    callback=flow_in_count, bouncetime=5)
 
-        print_header(log_file_path)
+        print_header()
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
         # open_solenoid(0)
 
@@ -113,13 +115,13 @@ def setup():
         raise_exception("setup")
 
 
-def print_header(_log_file_path):
+def print_header():
     str_debug = (DEBUG is True) and " DEBUG MODE" or ""
     LOG.info('\n\n--- Main started ({}){} ---'.format(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'), str_debug))
     LOG.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
     name_rpi = socket.gethostname()
     LOG.info("running on: {}".format(name_rpi))
-    LOG.info("log file: {}".format(_log_file_path))
+    LOG.info("log file: {}".format(LOG_FILE_W_PATH))
     LOG.debug("sys.argv[0] is {}".format(repr(sys.argv[0])))
     LOG.debug("__file__ is {}".format(repr(__file__)))
 
@@ -285,6 +287,10 @@ def open_solenoid(_int_tap_number):
 
 def something_wrong(_str_msg):
     LOG.warning("something wrong: {}".format(_str_msg))
+    str_subject = "-- Hydro Pi alert -- {}".format(_str_msg.upper())
+
+    send_email_warning = SendEmail(LOG)
+    send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
 
 def raise_exception(_str_func):
