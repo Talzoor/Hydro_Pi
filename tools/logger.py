@@ -4,10 +4,10 @@ import os
 
 class Logger:
 
-    def __init__(self, log_file_name="test.log", module_name=None):
-        full_root_script_path = os.getcwd()
-        self.log_file_path = "{}/{}".format(full_root_script_path, log_file_name)
-
+    def __init__(self, log_file_full_name="test.log", module_name=None):
+        # full_root_script_path = os.getcwd()
+        # self.log_file_path = "{}/{}".format(full_root_script_path, log_file_name)
+        self.log_file_path = log_file_full_name
         self.log_file_name = self.log_file_path
 
         if module_name is None:

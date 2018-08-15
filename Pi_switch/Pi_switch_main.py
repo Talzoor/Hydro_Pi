@@ -76,8 +76,11 @@ def micro_s_func(var=None):
 
 def logger_init():
     global LOG, LOG_NAME
-
-    logger_class = Logger(LOG_NAME, "Pi switch")
+    running_file = sys.argv[0]
+    running_path = str(running_file)[:running_file.rfind("/")]
+    log_file_full_path = "{}/{}".format(running_path, LOG_NAME)
+    print(log_file_full_path)
+    logger_class = Logger(log_file_full_path, "Pi switch")
     LOG = logger_class.logger
     log_file_path = logger_class.log_file_path
 
