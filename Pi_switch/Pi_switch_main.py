@@ -142,14 +142,14 @@ def main():
                 if SOLENOID_OPEN == 0:
                     open_solenoid(1)                # open tap_1
                     # LOG.info("opening tap 1")
-                flowing = check_flow(5)             # check to see if there is water flow
+                flowing = check_flow(20)             # check to see if there is water flow
                 if not flowing:
                     if NEED_TO_CLOSE:
                         open_solenoid(0)
                     else:
                         if SOLENOID_OPEN == 1:
                             open_solenoid(2)            # open tap_2
-                        flowing = check_flow(5)
+                        flowing = check_flow(2)
                         if not flowing:
                             something_wrong("NO WATER")
                             open_solenoid(0)
