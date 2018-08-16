@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from Pi_switch_main import PIN_TAP_1
+PIN_TAP_1 = 2
 
 try:
     GPIO.setmode(GPIO.BCM)
