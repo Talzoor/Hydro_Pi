@@ -167,7 +167,8 @@ def main():
         time_start, \
         pulse_flag, \
         time_last_pulse, \
-        pulse_running
+        pulse_running, \
+        FLOW_PIN
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--check",
@@ -181,7 +182,7 @@ def main():
     # i = 0
     pulse_running = False
     try:
-        GPIO.add_event_detect(14, GPIO.BOTH, callback=flow_count, bouncetime=50)
+        GPIO.add_event_detect(FLOW_PIN, GPIO.BOTH, callback=flow_count, bouncetime=50)
         pulse_count = 0
         no_pulse_count = 0
 
