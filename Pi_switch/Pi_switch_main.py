@@ -42,9 +42,9 @@ LOG_FILE_W_PATH     = ""
 MICRO_S_CHANGE      = False
 
 TIME_S = int(round(time.time()))
-
+EMAIL_ALRETS        = True
 DEBUG_FLOWING_SWITCH = 26
-DEBUG                = True
+DEBUG                = False
 
 
 def init_import_project_modules():
@@ -288,9 +288,9 @@ def open_solenoid(_int_tap_number):
 def something_wrong(_str_msg):
     LOG.warning("something wrong: {}".format(_str_msg))
     str_subject = "-- Hydro Pi alert -- {}".format(_str_msg.upper())
-
-    send_email_warning = SendEmail(LOG)
-    send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
+    if EMAIL_ALRETS:
+        send_email_warning = SendEmail(LOG)
+        send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
 
 def raise_exception(_str_func):
@@ -305,11 +305,14 @@ def raise_exception(_str_func):
         raise KeyboardInterrupt
     close(99)
 
-def run(debug=False):
-    global DEBUG
+
+def run(debug=False, email=True):
+    global DEBUG, EMAIL_ALRETS
     DEBUG = debug
+    EMAIL_ALRETS = email
     setup()
     main()
+
 
 if __name__ == '__main__':
     run()
