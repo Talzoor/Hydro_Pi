@@ -55,7 +55,7 @@ def init_import_project_modules():
     sys.path.append(main_project_dir)
 
 
-def micro_s_func(var=None):
+def micro_s_func():
     global WATER_LEVEL_SWITCH, MICRO_S_CHANGE, NEED_TO_CLOSE
 
     try:
@@ -105,8 +105,8 @@ def setup():
         GPIO.setup(FLOW_PIN,                GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=micro_s_func, bouncetime=2)
-        GPIO.add_event_detect(FLOW_PIN,         GPIO.FALLING,    callback=flow_in_count, bouncetime=5)
+        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=micro_s_func(), bouncetime=2)
+        GPIO.add_event_detect(FLOW_PIN,         GPIO.FALLING,    callback=flow_in_count(), bouncetime=5)
 
         print_header()
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
