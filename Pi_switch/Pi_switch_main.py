@@ -225,7 +225,7 @@ def check_flow(_int_period):
     return FLOW_COUNT > 10
 
 
-def flow_in_count(var=None)):
+def flow_in_count(var=None):
     global FLOW_COUNT
     FLOW_COUNT += 1
 
