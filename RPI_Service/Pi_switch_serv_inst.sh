@@ -8,6 +8,7 @@ DESCRIPTION="Controling taps"
 PYTHON_FILE="/home/pi/PycharmProjects/Hydro_Pi/run.py"
 SYS_SERVICE_DIR="/lib/systemd/system/"
 
+
 # Start of script
 
 rm "$SERVICE_NAME"
