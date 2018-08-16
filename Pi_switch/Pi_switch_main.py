@@ -82,8 +82,8 @@ def micro_s_func(var=None):
 
 def logger_init():
     global LOG, LOG_NAME, LOG_FILE_W_PATH
-    running_file = sys.path[0]
-    running_path = str(running_file)[:running_file.rfind("/")]
+    running_file = sys.argv[0]
+    running_path = sys.path[0]  # str(running_file)[:running_file.rfind("/")]
     log_file_full_path = "{}/{}".format(running_path, LOG_NAME)
 
     print("running_file:{}".format(running_file))
