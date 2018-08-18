@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO
 import socket
 from datetime import datetime
 import linecache
+from enum import Enum
 
 try:
     from .tools.logger import Logger
@@ -28,7 +29,7 @@ FLOW_PIN            = Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
 CHECK_EVERY         = 1  # ms(100)    # 100mS
-DEBUG_PRINT_EVERY   = 60
+DEBUG_PRINT_EVERY   = 1
 
 FLOW_COUNT          = 0
 SOLENOID_OPEN       = 0
@@ -46,6 +47,10 @@ EMAIL_ALRETS        = True
 DEBUG_FLOWING_SWITCH = 26
 DEBUG                = False
 
+class WaterSwitch(Enum):
+    high    = 0
+    low     = 1
+
 
 def init_import_project_modules():
     _tmp_dir = sys.argv[0]
@@ -55,7 +60,7 @@ def init_import_project_modules():
     sys.path.append(main_project_dir)
 
 
-def micro_s_func(var=None):
+def micro_s_func(channel):
     global WATER_LEVEL_SWITCH, MICRO_S_CHANGE, NEED_TO_CLOSE
 
     try:
@@ -127,70 +132,29 @@ def print_header():
     LOG.debug("__file__ is {}".format(repr(__file__)))
 
 
+def decide():
+    global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
+
+
+    # water_level_switch,   open_tap,   flowing,    flowing_mes_start_time
+    if WATER_LEVEL_SWITCH is WaterSwitch.low:
+        pass
+
+    if WATER_LEVEL_SWITCH is WaterSwitch.high:
+        solenoid_change(0)
+
+
 def main():
     global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
+
     try:
         LOG.debug("Flow_pin:{}".format(FLOW_PIN))
         time_start = int(round(time.time()))
-        debug_print = True
 
         while True:
             time_now = int(round(time.time()))
-
-            if WATER_LEVEL_SWITCH:
-                MICRO_S_CHANGE = False
-                if SOLENOID_OPEN == 0:
-                    open_solenoid(1)                # open tap_1
-                    # LOG.info("opening tap 1")
-                flowing = check_flow(20)             # check to see if there is water flow
-                if not flowing:
-                    if NEED_TO_CLOSE:
-                        open_solenoid(0)
-                    else:
-                        if SOLENOID_OPEN == 1:
-                            open_solenoid(2)            # open tap_2
-                        flowing = check_flow(2)
-                        if not flowing:
-                            something_wrong("NO WATER")
-                            open_solenoid(0)
-                            # error! send email no water
-            else:                                    # water_level == False (micro off)
-
-                if NEED_TO_CLOSE:
-                    open_solenoid(0)
-                    flowing = check_flow(1)
-                    while flowing:
-                        LOG.info("closing taps")
-                        open_solenoid(0)
-                        flowing = check_flow(2)
-                        NEED_TO_CLOSE += 1
-                        if NEED_TO_CLOSE > 5:
-                            something_wrong("DRIPPING")
-                            # error! send email DRIPPING
-                        LOG.debug("flowing:{}".format(flowing))
-                        if MICRO_S_CHANGE:
-                            MICRO_S_CHANGE = False
-                            break
-                    NEED_TO_CLOSE = 0
-                else:
-                    flowing = check_flow(1)
-                    if flowing:
-                        open_solenoid(0)
-                        NEED_TO_CLOSE += 1
-                        if NEED_TO_CLOSE > 5:
-                            something_wrong()
-                            # error! send email DRIPPING
-                    else:
-                        if debug_print: LOG.debug("all good, all closed")
-
-            if debug_print: LOG.debug("flowing:{}".format(flowing))
+            decide()
             sleep(CHECK_EVERY)
-
-            debug_print = False
-
-            if time_now - time_start > DEBUG_PRINT_EVERY:
-                time_start = time_now
-                debug_print = True
 
 
     except KeyboardInterrupt:
@@ -210,24 +174,28 @@ def check_flow(_int_period):
     time_start = int(round(time.time()))
     time_now = time_start
 
-    while (time_now - time_start) < (_int_period):  # wait to see if flowing
+    while ((time_now - time_start) < _int_period) and \
+            (not MICRO_S_CHANGE):  # wait to see if flowing
         sleep(ms(5))  # 0.5mS
         if DEBUG: flow_in_count_prog()
         time_now = int(round(time.time()))
-        if MICRO_S_CHANGE:
-            MICRO_S_CHANGE = False
-            break
+        #if MICRO_S_CHANGE:
+        #    MICRO_S_CHANGE = False
+        #    break
 
-    if FLOW_COUNT > 4:
+    flowing = False
+    if FLOW_COUNT > 10:
         LOG.info("Flow count during {} sec: {}".format(time_now - time_start, FLOW_COUNT))
-    #FLOW_COUNT = 0
+        flowing = True
 
-    return FLOW_COUNT > 10
+    FLOW_COUNT = 0
+
+    return flowing
 
 
-def flow_in_count(var=None):
+def flow_in_count(channel):
     global FLOW_COUNT
-    FLOW_COUNT += 1
+    FLOW_COUNT += 11
 
 
 def flow_in_count_prog():
@@ -253,7 +221,7 @@ def ms(_int_ms):
     return float(_int_ms) / 1000.0
 
 
-def open_solenoid(_int_tap_number):
+def solenoid_change(_int_tap_number):
     global SOLENOID_OPEN
     try:
         if _int_tap_number == 1:
@@ -289,7 +257,7 @@ def open_solenoid(_int_tap_number):
 def something_wrong(_str_msg):
     LOG.warning("something wrong: {}".format(_str_msg))
     str_subject = "-- Hydro Pi alert -- {}".format(_str_msg.upper())
-    if EMAIL_ALRETS:
+    if EMAIL_ALRETS[0]:
         send_email_warning = SendEmail(LOG)
         send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
@@ -306,11 +274,23 @@ def raise_exception(_str_func):
         raise KeyboardInterrupt
     close(99)
 
+def check_args(**kwargs):
+    global DEBUG, EMAIL_ALERTS
+    debug = False
+    email = [True, 1, 8]    # [send, how many a day, first one on(24h)]
+    if "debug" in kwargs:
+        debug = kwargs["debug"]
+    if "email" in kwargs:
+        email = kwargs["email"]
 
-def run(debug=False, email=True):
-    global DEBUG, EMAIL_ALRETS
     DEBUG = debug
-    EMAIL_ALRETS = email
+    EMAIL_ALERTS = email
+    print(DEBUG)
+    print(EMAIL_ALERTS)
+
+
+def run(**kwargs):
+    check_args(**kwargs)
     setup()
     main()
 
