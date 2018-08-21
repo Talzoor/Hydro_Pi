@@ -1,19 +1,21 @@
+
+
 #              check_water_level
 #                      |
 #       high ------------------------------------ low
 #        |                                       |
 #        |                                       |
 #      close                                solenoid open?
-#        |----------tap 1 was open           |           yes - 1 or 2
+#        |----------tap (1/2) was open           |           yes - 1 or 2
 #        |          for more than          no ---------------
 #      flow?        2 min? faulty?           |               |
 #        |                    |           open 1             | flow?
 # no ----------- yes        report           |      yes  ----------------  no
-#  |               |                         -          |                |
+#  |               |    (FLOW SENSOR)        -          |                |
 #  -          for 30 sec?                               -                |
 #                  |                                                 flow sensor (more than)
-#           no ------------- yes                                     is faulty?  (count 5? )
-#             |             |                                   no ------------------------- yes
+#           no ------------- yes                                     is ok?      (count 5? )
+#             |             |                                  yes ------------------------- no
 #     for 10 sec?        restart                                  |                         |
 #       -------         open-close                    tap 1  -------------------- tap 2     |
 # less |       | more       |                               |                    |        change
