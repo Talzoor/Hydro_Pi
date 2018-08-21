@@ -50,8 +50,8 @@ DEBUG                = False
 
 
 class WaterSwitch(Enum):
-    high    = 0
-    low     = 1
+    high    = 1
+    low     = 0
 
 
 class FlowSensor:
