@@ -12,9 +12,10 @@ def tell_me_you_got_pulse(channel=None):
 
 
 def setup():
-    global PIN, PIN2
+    global PIN
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(PIN, GPIO.IN)
+    GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
     #GPIO.setup(PIN2, GPIO.OUT)
     #GPIO.output(PIN2, False)
     GPIO.add_event_detect(PIN, GPIO.RISING, callback=tell_me_you_got_pulse, bouncetime=50) # 50mS
