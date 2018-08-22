@@ -1,7 +1,7 @@
 from RPi import GPIO
 
 COUNTER = 0
-PIN     = 17     #fill pin no
+PIN     = 27     #fill pin no
 
 
 def tell_me_you_got_pulse(channel=None):
