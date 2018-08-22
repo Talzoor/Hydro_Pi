@@ -54,6 +54,12 @@ class WaterSwitch(Enum):
     low     = True
 
 
+class MyTime():
+    w_date      = datetime.now().strftime('%Y-%m-%d  %H:%M:%S')
+    time        = datetime.now().strftime('%H:%M:%S')
+
+
+
 class FlowSensor:
     def __init__(self, _pin):
         self.ok = True
@@ -79,33 +85,33 @@ class FlowSensor:
 
     def time_flowing(self):
         _tmp_time = int(round(time.time()))
-        return (self.start_time - _tmp_time)
+        return (_tmp_time - self.start_time)
 
 
 class Solenoid:
-
     def __init__(self, _pin, _no):
         self.pin = _pin
         self.start_time = 0
         self.no = _no
 
     def open(self):
-        self.start_time = self.time_now()
-        solenoid_change(self._no)
+        self.start_time = _tmp_time = int(round(time.time()))
+        solenoid_change(self.no)
 
     def close(self):
         self.start_time = 0
 
     def state(self):
-        _tmp_state = GPIO.input(self.pin)
+        _tmp_state = not GPIO.input(self.pin)
         return _tmp_state
 
     def time_open(self):
         _tmp_time = int(round(time.time()))
-        return (self.start_time - _tmp_time)
+        time_open = _tmp_time - self.start_time
+        return (time_open if self.state() else -1)
 
     def restart(self):
-        solenoid_change(self._no)
+        solenoid_change(self.no)
         sleep(ms(50))
         solenoid_change(0)
 
@@ -127,7 +133,7 @@ def micro_s_func(channel=None):         # channel - pin sent from
         # GPIO.output(PIN_TAP_1, int(state))
         # GPIO.output(PIN_TAP_2, int(state))
 
-        LOG.debug("State: {}".format(state))
+        LOG.debug("State: {}, Time:{}".format(state, MyTime.time))
         WATER_LEVEL_SWITCH = state
         MICRO_S_CHANGE = True
         if state:
@@ -176,8 +182,7 @@ def setup():
 
         print_header()
         micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
-
-        # open_solenoid(0)
+        solenoid_change(0)
 
     except:
         raise_exception("setup")
@@ -187,7 +192,7 @@ def setup():
 
 def print_header():
     str_debug = (DEBUG is True) and " DEBUG MODE" or ""
-    LOG.info('\n\n--- Main started ({}){} ---'.format(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'), str_debug))
+    LOG.info('\n\n--- Main started ({}){} ---'.format(MyTime.w_date, str_debug))
     LOG.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
     name_rpi = socket.gethostname()
     LOG.info("running on: {}".format(name_rpi))
@@ -202,49 +207,49 @@ def decide(tap_1, tap_2, flow_sensor):
     try:
         flowing = check_flow(2)
 
-        if WATER_LEVEL_SWITCH == WaterSwitch.low:       # need to fill water
+        if WATER_LEVEL_SWITCH is True:       # need to fill water
             if SOLENOID_OPEN:                           # if tap already open
                 if flowing:
                     pass                                # nothing
-                else:                                   # not flowing
+                elif not flowing:                                   # not flowing
                     if flow_sensor.ok:
                         if tap_1.state():               # tap 1 open?
-                            if tap_1.time_open > 20:  # more than 20 sec?
+                            if tap_1.time_open() >= 20:  # more than 20 sec?
                                 tap_2.open()            # switch to tap 2
-                            else:                       # tap 1 - less than 20 sec
+                            elif tap_1.time_open() < 20:                       # tap 1 - less than 20 sec
                                 pass                    # nothing
                         elif tap_2.state():
-                            if tap_2.time_now() > 2:    # more than 2 sec
+                            if tap_2.time_open() >= 2:    # more than 2 sec
                                 tap_1.open()
                                 flow_sensor.not_ok()    # count faulty
-                            else:
+                            elif tap_2.time_open() < 2:
                                 pass                    # nothing
-                    else:
-                        tap_1.open()
-                        if tap_1.time_open > 10 * 60: # more than 10 min?
+                    elif not flow_sensor.ok:
+                        if not tap_1.state(): tap_1.open()
+                        if tap_1.time_open() >= minutes(10): # more than 10 min?
                             tap_2.open()
-                            if tap_2.time_open > 3 * 60:   # more than 3 min?
+                            if tap_2.time_open() >= minutes(3):   # more than 3 min?
                                 solenoid_change(0)      # close all taps
                                 something_wrong("NO WATER") # no water
-                            else:                       # less than 3 min
+                            elif tap_2.time_open < minutes(3):                       # less than 3 min
                                 pass                    # nothing
-                        else:                           # less than 10 min
+                        elif tap_1.time_open() > minutes(10):                           # less than 10 min
                             pass                        # nothing
 
-            else:                                       # Solenoid close
+            elif not SOLENOID_OPEN:                                       # Solenoid close
                 tap_1.open()                            # open tap 1
 
-        elif WaterSwitch.high:                          # water level ok
+        elif WATER_LEVEL_SWITCH is False:                          # water level ok
             if not flow_sensor.ok and \
                     (tap_1.time_open > minutes(2) or tap_2.time_open > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
             if not SOLENOID_OPEN == 0: solenoid_change(0)                          # close all taps
             if flowing:
-                if FlowSensor.time_flowing() > 30:      # flowing more than 30 sec?
+                if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
                     tap_2.restart()
                     something_wrong("DRIPPING")
-                else:                                   # if flowing less than 30 sec?
+                elif FlowSensor.time_flowing() < 30:                                   # if flowing less than 30 sec?
                     if FlowSensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
                         tap_2.restart()
@@ -261,6 +266,8 @@ def main(tap_1, tap_2, flow_sensor):
 
         while True:
             time_now = int(round(time.time()))
+            print('.', end='')
+            sys.stdout.flush()
             decide(tap_1, tap_2, flow_sensor)
             sleep(CHECK_EVERY)
 

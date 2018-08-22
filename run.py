@@ -1,3 +1,3 @@
-from Pi_switch import Pi_switch_main
+from Pi_switch.Pi_switch_main import run
 
-Pi_switch_main.run(debug=False, email=[False, 1, 8])
+run(debug=False, email=[False, 1, 8])
