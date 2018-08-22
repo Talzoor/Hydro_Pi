@@ -4,7 +4,7 @@ COUNTER = 0
 PIN     = 17     #fill pin no
 
 
-def tell_me_you_got_pulse():
+def tell_me_you_got_pulse(channel):
     global COUNTER
     COUNTER += 1
     print("I got pulse now! pulse no:{}".format(COUNTER))
