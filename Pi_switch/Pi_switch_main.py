@@ -1,5 +1,5 @@
 
-import time
+import time as time_lib
 from time import sleep
 import sys
 import RPi.GPIO as GPIO
@@ -43,7 +43,6 @@ LOG_FILE_W_PATH     = ""
 
 MICRO_S_CHANGE      = False
 
-TIME_S = int(round(time.time()))
 EMAIL_ALRETS        = True
 DEBUG_FLOWING_SWITCH = 26
 DEBUG                = False
@@ -53,11 +52,15 @@ class WaterSwitch(Enum):
     high    = False
     low     = True
 
+def unix_time():
+    return int(round(time_lib.time()))
 
-class MyTime():
-    w_date      = datetime.now().strftime('%Y-%m-%d  %H:%M:%S')
-    time        = datetime.now().strftime('%H:%M:%S')
+def time_date():
+    return datetime.now().strftime('%Y-%m-%d  %H:%M:%S')
 
+
+def time():
+    return datetime.now().strftime('%H:%M:%S')
 
 
 class FlowSensor:
@@ -77,14 +80,14 @@ class FlowSensor:
         flowing = check_flow(_int_period)
         if flowing:
             if self.start_time == 0:
-                self.start_time = int(round(time.time()))
+                self.start_time = unix_time()
         elif not flowing:
             self.start_time = 0
 
         return flowing
 
     def time_flowing(self):
-        _tmp_time = int(round(time.time()))
+        _tmp_time = unix_time()
         return (_tmp_time - self.start_time)
 
 
@@ -95,7 +98,7 @@ class Solenoid:
         self.no = _no
 
     def open(self):
-        self.start_time = _tmp_time = int(round(time.time()))
+        self.start_time = _tmp_time = unix_time()
         solenoid_change(self.no)
 
     def close(self):
@@ -106,9 +109,9 @@ class Solenoid:
         return _tmp_state
 
     def time_open(self):
-        _tmp_time = int(round(time.time()))
-        time_open = _tmp_time - self.start_time
-        return (time_open if self.state() else -1)
+        _tmp_time = unix_time()
+        _time_open = _tmp_time - self.start_time
+        return (_time_open if self.state() else -1)
 
     def restart(self):
         solenoid_change(self.no)
@@ -133,7 +136,7 @@ def micro_s_func(channel=None):         # channel - pin sent from
         # GPIO.output(PIN_TAP_1, int(state))
         # GPIO.output(PIN_TAP_2, int(state))
 
-        LOG.debug("State: {}, Time:{}".format(state, MyTime.time))
+        LOG.debug("State: {}, Time:{}".format(state, time()))
         WATER_LEVEL_SWITCH = state
         MICRO_S_CHANGE = True
         if state:
@@ -192,7 +195,7 @@ def setup():
 
 def print_header():
     str_debug = (DEBUG is True) and " DEBUG MODE" or ""
-    LOG.info('\n\n--- Main started ({}){} ---'.format(MyTime.w_date, str_debug))
+    LOG.info('\n\n--- Main started ({}){} ---'.format(time_date(), str_debug))
     LOG.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
     name_rpi = socket.gethostname()
     LOG.info("running on: {}".format(name_rpi))
@@ -231,7 +234,7 @@ def decide(tap_1, tap_2, flow_sensor):
                             if tap_2.time_open() >= minutes(3):   # more than 3 min?
                                 solenoid_change(0)      # close all taps
                                 something_wrong("NO WATER") # no water
-                            elif tap_2.time_open < minutes(3):                       # less than 3 min
+                            elif tap_2.time_open() < minutes(3):                       # less than 3 min
                                 pass                    # nothing
                         elif tap_1.time_open() > minutes(10):                           # less than 10 min
                             pass                        # nothing
@@ -241,7 +244,7 @@ def decide(tap_1, tap_2, flow_sensor):
 
         elif WATER_LEVEL_SWITCH is False:                          # water level ok
             if not flow_sensor.ok and \
-                    (tap_1.time_open > minutes(2) or tap_2.time_open > minutes(2)):
+                    (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
             if not SOLENOID_OPEN == 0: solenoid_change(0)                          # close all taps
             if flowing:
@@ -262,10 +265,10 @@ def main(tap_1, tap_2, flow_sensor):
 
     try:
         LOG.debug("Flow_pin:{}".format(flow_sensor.pin))
-        time_start = int(round(time.time()))
+        time_start = unix_time()
 
         while True:
-            time_now = int(round(time.time()))
+            time_now = unix_time()
             print('.', end='')
             sys.stdout.flush()
             decide(tap_1, tap_2, flow_sensor)
@@ -286,14 +289,14 @@ def check_flow(_int_period):
     global FLOW_COUNT, MICRO_S_CHANGE
 
     # count as least 10 ticks to consider 'flow state'
-    time_start = int(round(time.time()))
+    time_start = unix_time()
     time_now = time_start
 
     while ((time_now - time_start) < _int_period) and \
             (not MICRO_S_CHANGE):  # wait to see if flowing
         sleep(ms(5))  # 0.5mS
         if DEBUG: flow_in_count_prog()
-        time_now = int(round(time.time()))
+        time_now = unix_time()
         #if MICRO_S_CHANGE:
         #    MICRO_S_CHANGE = False
         #    break
@@ -317,8 +320,8 @@ def flow_in_count(channel=None):
 
 
 def flow_in_count_prog():
-    global FLOW_COUNT, TIME_S
-    time_now = int(round(time.time()))
+    global FLOW_COUNT
+    time_now = unix_time()
 
     if FLOW_COUNT > 500: FLOW_COUNT = 0
     #if time_now - TIME_S > 10: FLOW_COUNT = 0
