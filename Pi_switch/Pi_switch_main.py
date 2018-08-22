@@ -269,7 +269,7 @@ def main(tap_1, tap_2, flow_sensor):
 
         while True:
             time_now = unix_time()
-            print('.', end='')
+            #print('.', end='')
             sys.stdout.flush()
             decide(tap_1, tap_2, flow_sensor)
             sleep(CHECK_EVERY)
@@ -333,6 +333,7 @@ def flow_in_count_prog():
 
 
 def close(_code=None):
+    LOG.debug("Cleaning GPIOs")
     GPIO.cleanup()
     LOG.debug("Bye.")
     exit(_code is None and 0 or _code)
