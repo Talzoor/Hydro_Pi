@@ -12,6 +12,7 @@ class check_it():
         COUNTER += 1
         print("I got pulse now! pulse no:{}".format(COUNTER))
         sleep(2)
+        print("end sleep")
         GPIO.add_event_detect(PIN,
                               GPIO.RISING,
                               bouncetime=50, callback=self.tell_me_you_got_pulse)
