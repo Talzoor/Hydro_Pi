@@ -5,15 +5,16 @@ COUNTER = 0
 PIN     = 17     #fill pin no
 
 
-def tell_me_you_got_pulse(channel=None):
-    global COUNTER
-    GPIO.remove_event_detect(PIN)
-    COUNTER += 1
-    print("I got pulse now! pulse no:{}".format(COUNTER))
-    sleep(2)
-    GPIO.add_event_detect(PIN,
-                          GPIO.RISING,
-                          bouncetime=50)
+class check_it():
+    def tell_me_you_got_pulse(channel=None):
+        global COUNTER
+        GPIO.remove_event_detect(PIN)
+        COUNTER += 1
+        print("I got pulse now! pulse no:{}".format(COUNTER))
+        sleep(2)
+        GPIO.add_event_detect(PIN,
+                              GPIO.RISING,
+                              bouncetime=50)
 
 
 def setup():
@@ -25,7 +26,8 @@ def setup():
     GPIO.add_event_detect(PIN,
                           GPIO.RISING,
                           bouncetime=50)  # 50mS
-    GPIO.add_event_callback(PIN, tell_me_you_got_pulse)
+    check_test = check_it()
+    GPIO.add_event_callback(PIN, check_test.tell_me_you_got_pulse)
 
 
 def main():
