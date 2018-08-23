@@ -17,7 +17,7 @@ def setup():
     GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     GPIO.add_event_detect(PIN,
-                          GPIO.FALLING,
+                          GPIO.RISING,
                           callback=tell_me_you_got_pulse,
                           bouncetime=50)  # 50mS
 
