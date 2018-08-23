@@ -6,7 +6,7 @@ PIN     = 17     #fill pin no
 
 
 class check_it():
-    def tell_me_you_got_pulse(channel=None):
+    def tell_me_you_got_pulse(self, channel=None):
         global COUNTER
         GPIO.remove_event_detect(PIN)
         COUNTER += 1
