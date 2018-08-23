@@ -147,10 +147,6 @@ def micro_s_func(channel=None):         # channel - pin sent from
     except:
         raise_exception("micro_s_func")
 
-#def flow_change(var):
-#    bool_flowing = True
-#    pass
-
 
 def logger_init():
     global LOG, LOG_NAME, LOG_FILE_W_PATH
@@ -216,6 +212,9 @@ def decide(tap_1, tap_2, flow_sensor):
                     pass                                # nothing
                 elif not flowing:                                   # not flowing
                     if flow_sensor.ok:
+                        if tap_1.state() or tap_2.state():
+                            LOG.debug("time open- tap1:{}, tap2:{}"
+                                      .format(tap_1.time_open(), tap_2.time_open()))
                         if tap_1.state():               # tap 1 open?
                             if tap_1.time_open() >= 20:  # more than 20 sec?
                                 tap_2.open()            # switch to tap 2
@@ -295,7 +294,7 @@ def check_flow(_int_period):
     while ((time_now - time_start) < _int_period) and \
             (not MICRO_S_CHANGE):  # wait to see if flowing
         sleep(ms(5))  # 0.5mS
-        if DEBUG: flow_in_count_prog()
+        #if DEBUG: flow_in_count_prog()
         time_now = unix_time()
         #if MICRO_S_CHANGE:
         #    MICRO_S_CHANGE = False
@@ -342,26 +341,28 @@ def close(_code=None):
 def ms(_int_ms):
     return float(_int_ms) / 1000.0
 
+
 def minutes(_int_min):
     return int(_int_min * 60)
+
 
 def solenoid_change(_int_tap_number):
     global SOLENOID_OPEN
     try:
         if _int_tap_number == 1:
-            to_close    =  [PIN_TAP_2]
-            to_open     =  [PIN_TAP_1]
-            LOG.info("OPENING tap 1({})".format([PIN_TAP_1]))
+            to_close    =  [PIN_TAP_2, ]
+            to_open     =  [PIN_TAP_1, ]
+            LOG.info("OPENING tap 1(pin {})".format([PIN_TAP_1]))
 
         if _int_tap_number == 2:
-            to_close    =  [PIN_TAP_1]
-            to_open     =  [PIN_TAP_2]
-            LOG.info("CLOSING tap 1({}), OPENING 2({})".format([PIN_TAP_1], [PIN_TAP_2]))
+            to_close    =  [PIN_TAP_1, ]
+            to_open     =  [PIN_TAP_2, ]
+            LOG.info("CLOSING tap 1 (pin {}), OPENING 2 (pin {})".format([PIN_TAP_1], [PIN_TAP_2]))
 
         if _int_tap_number == 0:
             to_close    = [PIN_TAP_1, PIN_TAP_2]
-            to_open     = [0]
-            LOG.info("closing taps 1({}) and 2({})".format([PIN_TAP_1], [PIN_TAP_2]))
+            to_open     = [0, ]
+            LOG.info("closing taps 1 (pin {}) and 2 (pin {})".format([PIN_TAP_1], [PIN_TAP_2]))
 
         for tap_to_close in to_close:
             if not tap_to_close == 0:
@@ -412,6 +413,7 @@ def check_args(**kwargs):
     EMAIL_ALERTS = email
     print(DEBUG)
     print(EMAIL_ALERTS)
+    sys.stdout.flush()
 
 
 def run(**kwargs):
