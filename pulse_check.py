@@ -14,7 +14,7 @@ class check_it():
         sleep(2)
         GPIO.add_event_detect(PIN,
                               GPIO.RISING,
-                              bouncetime=50)
+                              bouncetime=50, callback=self.tell_me_you_got_pulse)
 
 
 def setup():
