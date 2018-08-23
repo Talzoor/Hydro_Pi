@@ -242,10 +242,10 @@ def decide(tap_1, tap_2, flow_sensor):
                 tap_1.open()                            # open tap 1
 
         elif WATER_LEVEL_SWITCH is False:                          # water level ok
-            if not flow_sensor.ok and \
+            if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
-            if not SOLENOID_OPEN == 0: solenoid_change(0)                          # close all taps
+            if SOLENOID_OPEN is not 0: solenoid_change(0)                          # close all taps
             if flowing:
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
@@ -380,9 +380,10 @@ def solenoid_change(_int_tap_number):
 
 
 def something_wrong(_str_msg):
-    LOG.warning("something wrong: {}".format(_str_msg))
-    str_subject = "-- Hydro Pi alert -- {}".format(_str_msg.upper())
+    str_msg = _str_msg.upper()
+    LOG.warning("something wrong: {}".format(str_msg))
     if EMAIL_ALRETS[0]:
+        str_subject = "-- Hydro Pi alert -- {}".format(str_msg)
         send_email_warning = SendEmail(LOG)
         send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
