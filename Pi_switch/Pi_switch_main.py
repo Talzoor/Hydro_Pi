@@ -245,7 +245,7 @@ def decide(tap_1, tap_2, flow_sensor):
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
-            if SOLENOID_OPEN is not 0: solenoid_change(0)                          # close all taps
+            if SOLENOID_OPEN: solenoid_change(0)                          # close all taps
             if flowing:
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
