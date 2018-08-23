@@ -19,7 +19,7 @@ def setup():
     GPIO.add_event_detect(PIN,
                           GPIO.RISING,
                           bouncetime=50)  # 50mS
-    #GPIO.add_event_callback(PIN, tell_me_you_got_pulse)
+    GPIO.add_event_callback(PIN, tell_me_you_got_pulse)
 
 
 def main():
