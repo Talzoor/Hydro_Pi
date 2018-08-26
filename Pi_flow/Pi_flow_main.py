@@ -73,7 +73,7 @@ def init_vars():
 def init_GPIO():
     global FLOW_PIN
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(FLOW_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(FLOW_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 
 def db_write_record():
