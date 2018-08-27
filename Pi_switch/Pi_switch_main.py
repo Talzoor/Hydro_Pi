@@ -48,12 +48,24 @@ DEBUG_FLOWING_SWITCH = 26
 DEBUG                = False
 
 
-class WaterSwitch(Enum):
-    high    = False
-    low     = True
+class WaterSwitch:
+
+    def __init__(self, _pin):
+        self.high = True
+        self.low = False
+
+        self.pin = _pin
+        self.switch_state = GPIO.input(self.pin)
+
+    def state(self):
+        self.switch_state = GPIO.input(self.pin)
+        return True if (self.switch_state == self.high) else False
+
+
 
 def unix_time():
     return int(round(time_lib.time()))
+
 
 def time_date():
     return datetime.now().strftime('%Y-%m-%d  %H:%M:%S')
@@ -105,7 +117,7 @@ class Solenoid:
         self.start_time = 0
 
     def state(self):
-        _tmp_state = not GPIO.input(self.pin)
+        _tmp_state = GPIO.input(self.pin)
         return _tmp_state
 
     def time_open(self):
@@ -132,7 +144,7 @@ def micro_s_func(channel=None):         # channel - pin sent from
 
     try:
         sleep(ms(5))
-        state = not GPIO.input(PIN_MICRO_SWITCH)
+        state = GPIO.input(PIN_MICRO_SWITCH)
         # GPIO.output(PIN_TAP_1, int(state))
         # GPIO.output(PIN_TAP_2, int(state))
 
@@ -172,8 +184,8 @@ def setup():
         GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
 
-        GPIO.setup(PIN_MICRO_SWITCH,        GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(PIN_MICRO_SWITCH,        GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
         GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=micro_s_func, bouncetime=2)
@@ -200,14 +212,14 @@ def print_header():
     LOG.debug("__file__ is {}".format(repr(__file__)))
 
 
-def decide(tap_1, tap_2, flow_sensor):
-    global WATER_LEVEL_SWITCH
+def decide(tap_1, tap_2, flow_sensor, water_level):
 
     try:
         flowing = check_flow(2)
+        solenoid_open = tap_1.state() or tap_2.state()
 
-        if WATER_LEVEL_SWITCH is True:       # need to fill water
-            if SOLENOID_OPEN:                           # if tap already open
+        if water_level.state() is True:       # need to fill water
+            if solenoid_open:                           # if tap already open
                 if flowing:
                     pass                                # nothing
                 elif not flowing:                                   # not flowing
@@ -238,23 +250,29 @@ def decide(tap_1, tap_2, flow_sensor):
                         elif tap_1.time_open() > minutes(10):                           # less than 10 min
                             pass                        # nothing
 
-            elif not SOLENOID_OPEN:                                       # Solenoid close
+            elif not solenoid_open:                                       # Solenoid close
                 tap_1.open()                            # open tap 1
 
-        elif WATER_LEVEL_SWITCH is False:                          # water level ok
+        elif water_level.state() is False:                          # water level ok
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
-            if SOLENOID_OPEN: solenoid_change(0)                          # close all taps
+                something_wrong("1")
+            if solenoid_open:
+                solenoid_change(0)                          # close all taps
+                something_wrong("2")
             if flowing:
+                something_wrong("3")
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
                     tap_2.restart()
                     something_wrong("DRIPPING")
                 elif FlowSensor.time_flowing() < 30:                                   # if flowing less than 30 sec?
+                    something_wrong("4")
                     if FlowSensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
                         tap_2.restart()
+                        something_wrong("5")
     except:
         raise_exception("decide")
 
@@ -265,12 +283,13 @@ def main(tap_1, tap_2, flow_sensor):
     try:
         LOG.debug("Flow_pin:{}".format(flow_sensor.pin))
         time_start = unix_time()
+        water_level = WaterSwitch()
 
         while True:
             time_now = unix_time()
             #print('.', end='')
             sys.stdout.flush()
-            decide(tap_1, tap_2, flow_sensor)
+            decide(tap_1, tap_2, flow_sensor, water_level)
             sleep(CHECK_EVERY)
 
 
