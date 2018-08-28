@@ -283,7 +283,7 @@ def main(tap_1, tap_2, flow_sensor):
     try:
         LOG.debug("Flow_pin:{}".format(flow_sensor.pin))
         time_start = unix_time()
-        water_level = WaterSwitch()
+        water_level = WaterSwitch(PIN_MICRO_SWITCH)
 
         while True:
             time_now = unix_time()
