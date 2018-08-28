@@ -58,6 +58,7 @@ class WaterSwitch:
         #self.switch_state = GPIO.input(self.pin)
 
     def state(self):
+        print("Called")
         self.switch_state = GPIO.input(self.pin)
         return True if (self.switch_state == self.high) else False
 
