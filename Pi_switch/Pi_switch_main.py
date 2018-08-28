@@ -187,7 +187,7 @@ def setup():
         GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
 
-        GPIO.setup(PIN_MICRO_SWITCH,        GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(PIN_MICRO_SWITCH,        GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
