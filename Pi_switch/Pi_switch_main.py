@@ -188,7 +188,7 @@ def setup():
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=micro_s_func, bouncetime=2)
+        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=WaterSwitch.state, bouncetime=2)
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
 
         print_header()
