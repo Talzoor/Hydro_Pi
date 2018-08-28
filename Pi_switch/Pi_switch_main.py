@@ -178,6 +178,7 @@ def setup():
         tap_1 = Solenoid(PIN_TAP_1, 1)
         tap_2 = Solenoid(PIN_TAP_2, 2)
         flow_sensor = FlowSensor(Pi_flow_main.FLOW_PIN)
+        water_level = WaterSwitch(PIN_MICRO_SWITCH)
 
         GPIO.setmode(GPIO.BCM)
 
@@ -188,7 +189,7 @@ def setup():
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=WaterSwitch.state, bouncetime=2)
+        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=water_level.state, bouncetime=2)
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
 
         print_header()
@@ -198,7 +199,7 @@ def setup():
     except:
         raise_exception("setup")
 
-    return tap_1, tap_2, flow_sensor
+    return tap_1, tap_2, flow_sensor, water_level
 
 
 def print_header():
@@ -277,13 +278,12 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
         raise_exception("decide")
 
 
-def main(tap_1, tap_2, flow_sensor):
+def main(tap_1, tap_2, flow_sensor, water_level):
     global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
 
     try:
         LOG.debug("Flow_pin:{}".format(flow_sensor.pin))
         time_start = unix_time()
-        water_level = WaterSwitch(PIN_MICRO_SWITCH)
 
         while True:
             time_now = unix_time()
@@ -439,8 +439,8 @@ def check_args(**kwargs):
 
 def run(**kwargs):
     check_args(**kwargs)
-    tap_1, tap_2, flow_sensor = setup()
-    main(tap_1, tap_2, flow_sensor)
+    tap_1, tap_2, flow_sensor, water_level = setup()
+    main(tap_1, tap_2, flow_sensor, water_level)
 
 
 if __name__ == '__main__':
