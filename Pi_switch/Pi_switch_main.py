@@ -118,7 +118,7 @@ class Solenoid:
         self.start_time = 0
 
     def state(self):
-        _tmp_state = GPIO.input(self.pin)
+        _tmp_state = not GPIO.input(self.pin)
         return _tmp_state
 
     def time_open(self):
