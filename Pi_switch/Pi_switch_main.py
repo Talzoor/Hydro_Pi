@@ -193,7 +193,8 @@ def setup():
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
 
         print_header()
-        micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
+        #micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
+        water_level.state()
         solenoid_change(0)
 
     except:
