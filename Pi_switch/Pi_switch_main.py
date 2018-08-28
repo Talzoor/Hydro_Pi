@@ -394,6 +394,7 @@ def solenoid_change(_int_tap_number):
                 GPIO.output(tap_to_open, False)      # open
 
         SOLENOID_OPEN = _int_tap_number
+
     except:
         raise_exception("open_solenoid({})".format(_int_tap_number))
 
@@ -401,10 +402,10 @@ def solenoid_change(_int_tap_number):
 def something_wrong(_str_msg):
     str_msg = _str_msg.upper()
     LOG.warning("something wrong: {}".format(str_msg))
-    if EMAIL_ALRETS[0]:
-        str_subject = "-- Hydro Pi alert -- {}".format(str_msg)
-        send_email_warning = SendEmail(LOG)
-        send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
+    #if EMAIL_ALRETS[0]:
+    #    str_subject = "-- Hydro Pi alert -- {}".format(str_msg)
+    #    send_email_warning = SendEmail(LOG)
+    #    send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
 
 def raise_exception(_str_func):
