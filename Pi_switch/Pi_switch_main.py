@@ -55,7 +55,7 @@ class WaterSwitch:
         self.low = False
 
         self.pin = _pin
-        self.switch_state = GPIO.input(self.pin)
+        #self.switch_state = GPIO.input(self.pin)
 
     def state(self):
         self.switch_state = GPIO.input(self.pin)
