@@ -51,14 +51,14 @@ DEBUG                = False
 class WaterSwitch:
 
     def __init__(self, _pin):
-        self.high = True
-        self.low = False
+        self.high = False
+        self.low = True
 
         self.pin = _pin
         self.switch_state = False
         #self.switch_state = GPIO.input(self.pin)
 
-    def state(self):
+    def state(self, channel=None):
         print("Called")
         self.switch_state = GPIO.input(self.pin)
         return True if (self.switch_state == self.high) else False
