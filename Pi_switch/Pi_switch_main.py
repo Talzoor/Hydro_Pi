@@ -220,7 +220,7 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
     try:
         flowing = check_flow(2)
         solenoid_open = tap_1.state() or tap_2.state()
-
+        print("tap_1.state():{}, tap_2.state():{}".format(tap_1.state(), tap_2.state()))
         if water_level.state() is True:       # need to fill water
             if solenoid_open:                           # if tap already open
                 if flowing:
