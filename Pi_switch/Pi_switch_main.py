@@ -220,7 +220,7 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
     try:
         flowing = check_flow(2)
         solenoid_open = tap_1.state() or tap_2.state()
-        print("tap_1.state():{}, tap_2.state():{}".format(tap_1.state(), tap_2.state()))
+        # print("tap_1.state():{}, tap_2.state():{}".format(tap_1.state(), tap_2.state()))
         if water_level.state() is True:       # need to fill water
             if solenoid_open:                           # if tap already open
                 if flowing:
@@ -243,11 +243,11 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
                                 pass                    # nothing
                     elif not flow_sensor.ok:
                         if not tap_1.state(): tap_1.open()
-                        if tap_1.time_open() >= minutes(10): # more than 10 min?
+                        if tap_1.time_open() >= minutes(10):    # more than 10 min?
                             tap_2.open()
                             if tap_2.time_open() >= minutes(3):   # more than 3 min?
                                 solenoid_change(0)      # close all taps
-                                something_wrong("NO WATER") # no water
+                                something_wrong("NO WATER")     # no water
                             elif tap_2.time_open() < minutes(3):                       # less than 3 min
                                 pass                    # nothing
                         elif tap_1.time_open() > minutes(10):                           # less than 10 min
@@ -260,22 +260,17 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong("FLOW SENSOR BAD")
-                something_wrong("1")
             if solenoid_open:
                 solenoid_change(0)                          # close all taps
-                something_wrong("2")
             if flowing:
-                something_wrong("3")
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
                     tap_2.restart()
                     something_wrong("DRIPPING")
                 elif FlowSensor.time_flowing() < 30:                                   # if flowing less than 30 sec?
-                    something_wrong("4")
                     if FlowSensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
                         tap_2.restart()
-                        something_wrong("5")
     except:
         raise_exception("decide")
 
