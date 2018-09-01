@@ -27,12 +27,12 @@ def grabSBS():
     return res,imSBS
 
 ###For displaying locally instead of streaming
-#while(False):
-#    res, imLeft = grab(0)
-#    imRight = imLeft.copy()
-#    imSBS = np.concatenate((imLeft, imRight), axis=1)
-#    cv2.imshow("win", imSBS)
-#    cv2.waitKey(20)
+while(True):
+    res, imLeft = grab(0)
+    imRight = imLeft.copy()
+    imSBS = np.concatenate((imLeft, imRight), axis=1)
+    cv2.imshow("win", imSBS)
+    cv2.waitKey(20)
 
 header_data = ctypes.create_string_buffer(12)
 
