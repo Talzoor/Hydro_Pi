@@ -44,7 +44,7 @@ while(True):
 
     while(True):
         (client, address) = sck.accept()
-        print "Client connected:", address
+        print ("Client connected:", address)
         try:
             while(True):
             res,im = grabSBS()
@@ -59,7 +59,7 @@ while(True):
                     client.sendall(header_data .raw)
                     client.sendall(coded.tobytes())
         except Exception as ex:
-            print "ERROR:", ex
+            print ("ERROR:", ex)
             client.close()
             sck.close()
             exit()
