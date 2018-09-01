@@ -6,10 +6,10 @@ import struct
 
 cap = []
 cap.append(cv2.VideoCapture(0))
-cap.append(cv2.VideoCapture(1))
+#cap.append(cv2.VideoCapture(1))
 
 cap[0].set(cv2.CAP_PROP_FPS, 15)
-cap[1].set(cv2.CAP_PROP_FPS, 15)
+#cap[1].set(cv2.CAP_PROP_FPS, 15)
 
 #grab a single frame from one camera
 def grab(num):
@@ -47,7 +47,7 @@ while(True):
         print ("Client connected:", address)
         try:
             while (True):
-                res,im = grabSBS()
+                res, im = grabSBS()
                 if (res):
                     success, coded = cv2.imencode('.jpg', im)
                     if (success):
