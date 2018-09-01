@@ -46,18 +46,18 @@ while(True):
         (client, address) = sck.accept()
         print ("Client connected:", address)
         try:
-            while(True):
-            res,im = grabSBS()
-            if(res):
-                success, coded = cv2.imencode('.jpg', im)
-                if (success):
-                    height, width, channels = im.shape
-                    size = len(coded)
-                    struct.pack_into(">i", header_data , 0, width)
-                    struct.pack_into(">i", header_data , 4, height)
-                    struct.pack_into(">i", header_data , 8, size)
-                    client.sendall(header_data .raw)
-                    client.sendall(coded.tobytes())
+            while (True):
+                res,im = grabSBS()
+                if (res):
+                    success, coded = cv2.imencode('.jpg', im)
+                    if (success):
+                        height, width, channels = im.shape
+                        size = len(coded)
+                        struct.pack_into(">i", header_data , 0, width)
+                        struct.pack_into(">i", header_data , 4, height)
+                        struct.pack_into(">i", header_data , 8, size)
+                        client.sendall(header_data .raw)
+                        client.sendall(coded.tobytes())
         except Exception as ex:
             print ("ERROR:", ex)
             client.close()
