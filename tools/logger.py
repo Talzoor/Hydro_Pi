@@ -16,8 +16,8 @@ class Logger:
             self.module_name = module_name
 
         # create file handler which logs even debug messages
-        self.logger = logging.getLogger(self.module_name)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger_handle = logging.getLogger(self.module_name)
+        self.logger_handle.setLevel(logging.DEBUG)
 
         file_h = logging.FileHandler(self.log_file_name)
         file_h.setLevel(logging.INFO)
@@ -27,11 +27,12 @@ class Logger:
         console_h.setLevel(logging.DEBUG)
 
         # create formatter and add it to the handlers
-        formatter = logging.Formatter('%(asctime)s: %(name)s - %(levelname)s #%(message)s#', "%Y/%m/%d %H:%M:%S")
+        formatter = logging.Formatter("%(asctime)-20s%(name)-10s-%(levelname)-8s" +
+                                      "#%(message)s#", "%Y/%m/%d %H:%M:%S")
         console_h.setFormatter(formatter)
         file_h.setFormatter(formatter)
 
         # add the handlers to logger
-        self.logger.addHandler(console_h)
-        self.logger.addHandler(file_h)
+        self.logger_handle.addHandler(console_h)
+        self.logger_handle.addHandler(file_h)
 

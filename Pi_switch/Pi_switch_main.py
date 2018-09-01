@@ -6,8 +6,12 @@ import RPi.GPIO as GPIO
 #from Pi_flow import Pi_flow_main
 import socket
 from datetime import datetime
+from datetime import timedelta
 import linecache
-from enum import Enum
+from sty import ef, fg, bg, rs
+from sty.register import FgRegister, BgRegister, RsRegister
+
+
 
 try:
     from .tools.logger import Logger
@@ -22,9 +26,12 @@ try:
 except ImportError:
     from tools.email_script import SendEmail
 
+name_rpi = socket.gethostname()
+rpi2 = (name_rpi == "RPI2")
+
 PIN_TAP_1           = 2
 PIN_TAP_2           = 3
-PIN_MICRO_SWITCH    = 17
+PIN_MICRO_SWITCH    = name_rpi and 26 or 17
 # FLOW_PIN            = Pi_flow_main.FLOW_PIN
 
 WATER_LEVEL_SWITCH  = False
@@ -37,7 +44,7 @@ FLOW_SENSOR_OK      = True
 
 NEED_TO_CLOSE       = 0     # if 0 ok, if num = no. of failed attempts
 
-LOG                 = None      # logger instance
+# LOG                 = None      # logger instance
 LOG_NAME            = "Pi_switch.log"
 LOG_FILE_W_PATH     = ""
 
@@ -48,19 +55,63 @@ DEBUG_FLOWING_SWITCH = 26
 DEBUG                = False
 
 
+class ColorPrint:
+    def __init__(self, _log):
+        self.log = _log
+        self.fg = FgRegister()
+        self.bg = BgRegister()
+        self.rs = RsRegister()
+        self.bool_bg = False
+        self.color_code = 15        # default white
+
+    def __call__(self, _str, **kwargs):
+        try:
+            if "color_code" in kwargs:
+                self.color_code = kwargs["color_code"]
+            if "bg" in kwargs:
+                self.bool_bg = kwargs["bg"]
+            func = self.bg if self.bool_bg else self.fg
+        except:
+            raise_exception(self.log, "ColorPrint __call__")
+        return func(self.color_code) + _str + self.rs.all
+
+    def color(self , _color_code, _bg=False):
+        func = self.bg if self.bool_bg else self.fg
+        print(func(_color_code))
+
+    def reset(self):
+        print(self.rs.all)
+
+
 class WaterSwitch:
 
-    def __init__(self, _pin):
+    def __init__(self, _log, _pin):
         self.high = False
         self.low = True
 
         self.pin = _pin
         self.switch_state = False
+        self.log = _log
+        self.time_open = -1
         #self.switch_state = GPIO.input(self.pin)
 
     def state(self, channel=None):
+        print_color = ColorPrint(self.log)
         self.switch_state = GPIO.input(self.pin)
-        return True if (self.switch_state == self.high) else False
+        bool_return = (self.switch_state == self.high) and True or False
+
+        if channel is not None:
+            if bool_return:
+                self.time_open = unix_time()
+                str_time_open = ''
+            else:
+                str_time_open = ", was open for " + \
+                                str(timedelta(seconds=(unix_time() - self.time_open)))
+                self.time_open = -1
+
+            self.log.info(print_color("Water switch state changed: {}{}".
+                                      format(self.switch_state, str_time_open), color_code=98))
+        return bool_return
 
 
 
@@ -77,11 +128,12 @@ def time():
 
 
 class FlowSensor:
-    def __init__(self, _pin):
+    def __init__(self, _log, _pin):
         self.ok = True
         self.pin = _pin
         self.faulty_count = 0
         self.start_time = 0
+        self.log = _log
 
     def not_ok(self):
         self.faulty_count += 1
@@ -90,7 +142,7 @@ class FlowSensor:
             self.faulty_count = 0
 
     def flow(self, _int_period):
-        flowing = check_flow(_int_period)
+        flowing = check_flow(self.log, _int_period)
         if flowing:
             if self.start_time == 0:
                 self.start_time = unix_time()
@@ -105,14 +157,15 @@ class FlowSensor:
 
 
 class Solenoid:
-    def __init__(self, _pin, _no):
+    def __init__(self, _log, _pin, _no):
         self.pin = _pin
         self.start_time = 0
         self.no = _no
+        self.log = _log
 
     def open(self):
-        self.start_time = _tmp_time = unix_time()
-        solenoid_change(self.no)
+        self.start_time = unix_time()
+        solenoid_change(self.log, self.no)
 
     def close(self):
         self.start_time = 0
@@ -124,12 +177,12 @@ class Solenoid:
     def time_open(self):
         _tmp_time = unix_time()
         _time_open = _tmp_time - self.start_time
-        return (_time_open if self.state() else -1)
+        return self.state() and _time_open or -1
 
     def restart(self):
-        solenoid_change(self.no)
+        solenoid_change(self.log, self.no)
         sleep(ms(50))
-        solenoid_change(0)
+        solenoid_change(self.log, 0)
 
 
 def init_import_project_modules():
@@ -139,47 +192,27 @@ def init_import_project_modules():
 
     sys.path.append(main_project_dir)
 
-
-def micro_s_func(channel=None):         # channel - pin sent from
-    global WATER_LEVEL_SWITCH, MICRO_S_CHANGE, NEED_TO_CLOSE
-
-    try:
-        sleep(ms(5))
-        state = GPIO.input(PIN_MICRO_SWITCH)
-        # GPIO.output(PIN_TAP_1, int(state))
-        # GPIO.output(PIN_TAP_2, int(state))
-
-        LOG.debug("State: {}, Time:{}".format(state, time()))
-        WATER_LEVEL_SWITCH = state
-        MICRO_S_CHANGE = True
-        if state:
-            NEED_TO_CLOSE = False
-        else:
-            NEED_TO_CLOSE = True
-
-    except:
-        raise_exception("micro_s_func")
-
-
 def logger_init():
-    global LOG, LOG_NAME, LOG_FILE_W_PATH
+    global LOG_NAME, LOG_FILE_W_PATH
     running_file = sys.argv[0]
     running_path = sys.path[0]  # str(running_file)[:running_file.rfind("/")]
     log_file_full_path = "{}/{}".format(running_path, LOG_NAME)
 
     logger_class = Logger(log_file_full_path, "Pi switch")
-    LOG = logger_class.logger
+    log_h = logger_class.logger_handle
     LOG_FILE_W_PATH = logger_class.log_file_name
+
+    return log_h
 
 
 def setup():
     try:
         init_import_project_modules()
-        logger_init()
-        tap_1 = Solenoid(PIN_TAP_1, 1)
-        tap_2 = Solenoid(PIN_TAP_2, 2)
-        flow_sensor = FlowSensor(Pi_flow_main.FLOW_PIN)
-        water_level = WaterSwitch(PIN_MICRO_SWITCH)
+        log = logger_init()
+        tap_1 = Solenoid(log, PIN_TAP_1, 1)
+        tap_2 = Solenoid(log, PIN_TAP_2, 2)
+        flow_sensor = FlowSensor(log, Pi_flow_main.FLOW_PIN)
+        water_level = WaterSwitch(log, PIN_MICRO_SWITCH)
 
         GPIO.setmode(GPIO.BCM)
 
@@ -190,35 +223,36 @@ def setup():
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        GPIO.add_event_detect(PIN_MICRO_SWITCH, GPIO.BOTH, callback=water_level.state, bouncetime=2)
+        GPIO.add_event_detect(water_level.pin, GPIO.BOTH, callback=water_level.state, bouncetime=2)
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
 
-        print_header()
-        #micro_s_func()      # init 'WATER_LEVEL_SWITCH' var
+        print_header(log)
         water_level.state()
-        solenoid_change(0)
+        solenoid_change(log, 0)
 
     except:
-        raise_exception("setup")
+        raise_exception(log, "setup")
 
-    return tap_1, tap_2, flow_sensor, water_level
+    return log, tap_1, tap_2, flow_sensor, water_level
 
 
-def print_header():
+def print_header(_log):
+    log = _log
+    print_color = ColorPrint(log)
     str_debug = (DEBUG is True) and " DEBUG MODE" or ""
-    LOG.info('\n\n--- Main started ({}){} ---'.format(time_date(), str_debug))
-    LOG.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
+    log.info(print_color('--- Main started ({}){} ---'.format(time_date(), str_debug), color_code=69))
+    log.info('GPIO:{}, Python:{}'.format(GPIO.VERSION, sys.version.replace('\n', ',')))
     name_rpi = socket.gethostname()
-    LOG.info("running on: {}".format(name_rpi))
-    LOG.info("log file: {}".format(LOG_FILE_W_PATH))
-    LOG.debug("sys.argv[0] is {}".format(repr(sys.argv[0])))
-    LOG.debug("__file__ is {}".format(repr(__file__)))
+    log.info("running on:" + print_color("{}".format(name_rpi), color_code=46))
+    log.info("log file: {}".format(LOG_FILE_W_PATH))
+    log.debug("sys.argv[0] is {}".format(repr(sys.argv[0])))
+    log.debug("__file__ is {}".format(repr(__file__)))
 
 
-def decide(tap_1, tap_2, flow_sensor, water_level):
+def decide(log, tap_1, tap_2, flow_sensor, water_level):
 
     try:
-        flowing = check_flow(2)
+        flowing = check_flow(log, 2)
         solenoid_open = tap_1.state() or tap_2.state()
         # print("tap_1.state():{}, tap_2.state():{}".format(tap_1.state(), tap_2.state()))
         if water_level.state() is True:       # need to fill water
@@ -228,7 +262,7 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
                 elif not flowing:                                   # not flowing
                     if flow_sensor.ok:
                         if tap_1.state() or tap_2.state():
-                            LOG.debug("time open- tap1:{}, tap2:{}"
+                            log.debug("time open- tap1:{}, tap2:{}"
                                       .format(tap_1.time_open(), tap_2.time_open()))
                         if tap_1.state():               # tap 1 open?
                             if tap_1.time_open() >= 20:  # more than 20 sec?
@@ -246,8 +280,8 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
                         if tap_1.time_open() >= minutes(10):    # more than 10 min?
                             tap_2.open()
                             if tap_2.time_open() >= minutes(3):   # more than 3 min?
-                                solenoid_change(0)      # close all taps
-                                something_wrong("NO WATER")     # no water
+                                solenoid_change(log, 0)      # close all taps
+                                something_wrong(log, "NO WATER")     # no water
                             elif tap_2.time_open() < minutes(3):                       # less than 3 min
                                 pass                    # nothing
                         elif tap_1.time_open() > minutes(10):                           # less than 10 min
@@ -259,48 +293,48 @@ def decide(tap_1, tap_2, flow_sensor, water_level):
         elif water_level.state() is False:                          # water level ok
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
-                something_wrong("FLOW SENSOR BAD")
+                something_wrong(log, "FLOW SENSOR BAD")
             if solenoid_open:
-                solenoid_change(0)                          # close all taps
+                solenoid_change(log, 0)                          # close all taps
             if flowing:
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
                     tap_2.restart()
-                    something_wrong("DRIPPING")
+                    something_wrong(log, "DRIPPING")
                 elif FlowSensor.time_flowing() < 30:                                   # if flowing less than 30 sec?
                     if FlowSensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
                         tap_2.restart()
     except:
-        raise_exception("decide")
+        raise_exception(log, "decide")
 
 
-def main(tap_1, tap_2, flow_sensor, water_level):
+def main(log, tap_1, tap_2, flow_sensor, water_level):
     global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
 
     try:
-        LOG.debug("Flow_pin:{}".format(flow_sensor.pin))
+        log.debug("Flow_pin:{}".format(flow_sensor.pin))
         time_start = unix_time()
 
         while True:
             time_now = unix_time()
             #print('.', end='')
             sys.stdout.flush()
-            decide(tap_1, tap_2, flow_sensor, water_level)
+            decide(log, tap_1, tap_2, flow_sensor, water_level)
             sleep(CHECK_EVERY)
 
 
     except KeyboardInterrupt:
-        LOG.info("Keyboard Exc.")
+        log.info("Keyboard Exc.")
         raise KeyboardInterrupt
     except:
-        raise_exception("main")
+        raise_exception(log, "main")
 
     finally:
-        close()
+        close(log)
 
 
-def check_flow(_int_period):
+def check_flow(log, _int_period):
     global FLOW_COUNT, MICRO_S_CHANGE
 
     # count as least 10 ticks to consider 'flow state'
@@ -318,7 +352,7 @@ def check_flow(_int_period):
 
     flowing = False
     if FLOW_COUNT > 10:
-        LOG.info("Flow count during {} sec: {}".format(time_now - time_start, FLOW_COUNT))
+        log.info("Flow count during {} sec: {}".format(time_now - time_start, FLOW_COUNT))
         flowing = True
 
     FLOW_COUNT = 0
@@ -347,10 +381,11 @@ def flow_in_count_prog():
         FLOW_COUNT = 0
 
 
-def close(_code=None):
-    LOG.debug("Cleaning GPIOs")
+def close(log, _code=None):
+    print_color = ColorPrint(log)
+    log.debug("Cleaning GPIOs")
     GPIO.cleanup()
-    LOG.debug("Bye.")
+    log.debug(print_color("Bye.", color_code=69))
     exit(_code is None and 0 or _code)
 
 
@@ -362,23 +397,29 @@ def minutes(_int_min):
     return int(_int_min * 60)
 
 
-def solenoid_change(_int_tap_number):
+def solenoid_change(log, _int_tap_number):
     global SOLENOID_OPEN
+    print_color = ColorPrint(log)
     try:
         if _int_tap_number == 1:
             to_close    =  [PIN_TAP_2, ]
             to_open     =  [PIN_TAP_1, ]
-            LOG.info("OPENING tap 1(pin {})".format([PIN_TAP_1]))
+            log.info(print_color("OPENING tap 1", color_code=34) +
+                     "(pin {})".format([PIN_TAP_1]))
 
         if _int_tap_number == 2:
             to_close    =  [PIN_TAP_1, ]
             to_open     =  [PIN_TAP_2, ]
-            LOG.info("CLOSING tap 1 (pin {}), OPENING 2 (pin {})".format([PIN_TAP_1], [PIN_TAP_2]))
+            log.info(print_color("CLOSING tap 1", color_code=160) +
+                     " (pin {}), ".format([PIN_TAP_1]) +
+                     print_color("OPENING 2", color_code=34) +
+                     " (pin {})".format([PIN_TAP_2]))
 
         if _int_tap_number == 0:
             to_close    = [PIN_TAP_1, PIN_TAP_2]
             to_open     = [0, ]
-            LOG.info("closing taps 1 (pin {}) and 2 (pin {})".format([PIN_TAP_1], [PIN_TAP_2]))
+            log.info(print_color("CLOSING taps 1 and 2", color_code=160) +
+                     " (pins {},{})".format([PIN_TAP_1], [PIN_TAP_2]))
 
         for tap_to_close in to_close:
             if not tap_to_close == 0:
@@ -393,29 +434,35 @@ def solenoid_change(_int_tap_number):
         SOLENOID_OPEN = _int_tap_number
 
     except:
-        raise_exception("open_solenoid({})".format(_int_tap_number))
+        raise_exception(log, "open_solenoid({})".format(_int_tap_number))
 
 
-def something_wrong(_str_msg):
+def something_wrong(log, _str_msg):
     str_msg = _str_msg.upper()
-    LOG.warning("something wrong: {}".format(str_msg))
+    log.warning("something wrong: {}".format(str_msg))
     #if EMAIL_ALRETS[0]:
     #    str_subject = "-- Hydro Pi alert -- {}".format(str_msg)
     #    send_email_warning = SendEmail(LOG)
     #    send_email_warning.send(subject=str_subject, log_file=LOG_FILE_W_PATH, msg=_str_msg)
 
 
-def raise_exception(_str_func):
+def raise_exception(log, _str_func):
+    print_color = ColorPrint(log)
     exc_type, exc_obj, tb = sys.exc_info()
     f = tb.tb_frame
     lineno = tb.tb_lineno
     filename = f.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
-    LOG.critical("\n\nfucn '{}' error: \n{}, {} \nline:{}- {}".format(_str_func, exc_type, exc_obj, lineno, line))
+
+    print_color.color(196)
+    log.critical("\n\nfucn '{}' error: \n{}, {} \nline:{}- {}"
+                 .format(_str_func, exc_type, exc_obj, lineno, line))
+    print_color.reset()
+
     if exc_type == KeyboardInterrupt:
         raise KeyboardInterrupt
-    close(99)
+    close(log, 99)
 
 
 def check_args(**kwargs):
@@ -436,8 +483,8 @@ def check_args(**kwargs):
 
 def run(**kwargs):
     check_args(**kwargs)
-    tap_1, tap_2, flow_sensor, water_level = setup()
-    main(tap_1, tap_2, flow_sensor, water_level)
+    tap_1, tap_2, flow_sensor, water_level, log = setup()
+    main(tap_1, tap_2, flow_sensor, water_level, log)
 
 
 if __name__ == '__main__':

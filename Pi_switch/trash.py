@@ -1,25 +1,65 @@
+import cv2
+import numpy as np
+import socket
+import ctypes
+import struct
 
-import os
-import datetime as dt
+cap = []
+cap.append(cv2.VideoCapture(0))
+cap.append(cv2.VideoCapture(1))
 
-# common time string - change this and it will change folder and files names
-str_time = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-# find user folder
-userhome = os.path.expanduser('~')
-desktop = userhome + '/Desktop/'
-# full path for saving folder - change this to control folder name
-dir_to_save = desktop + 'experimental_results/' + str_time
+cap[0].set(cv2.CAP_PROP_FPS, 15)
+cap[1].set(cv2.CAP_PROP_FPS, 15)
 
-# uncomment next 2 lines to check Desktop and saving folder are correct
-#   print("userhome:{}, desktop:{}".format(userhome, desktop))
-#   print("dir_to_save:{}".format(dir_to_save))
+#grab a single frame from one camera
+def grab(num):
+    res, im = cap[num].read()
+    return (res,im)
 
-# now to check if this folder already there
-dir_exists = os.path.isdir(dir_to_save)
-if not dir_exists:              # if not - create it
-    os.makedirs(dir_to_save)
+#grab a frame from each camera and stitch them
+#side by side
+def grabSBS():
+    res, imLeft  = grab(1)
+    #next line is for pretending I have 2 cameras
+    #imRight = imLeft.copy()
+    res, imRight = grab(0)
+    imSBS = np.concatenate((imLeft, imRight), axis=1)
+    return res,imSBS
 
-# finally adding dir_to_save to all three files
-VIDEO_FILE_NAME = dir_to_save + "cam" + camId + "_output_" + str_time + ".h264"
-TIMESTAMP_FILE_NAME = dir_to_save + "cam" + camId + "_timestamp_" + str_time + ".csv"
-TTL_FILE_NAME = dir_to_save + "cam"+ camId + "_ttl_" + str_time + ".csv"
+###For displaying locally instead of streaming
+#while(False):
+#    res, imLeft = grab(0)
+#    imRight = imLeft.copy()
+#    imSBS = np.concatenate((imLeft, imRight), axis=1)
+#    cv2.imshow("win", imSBS)
+#    cv2.waitKey(20)
+
+header_data = ctypes.create_string_buffer(12)
+
+while(True):
+    sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sck.bind(("10.0.0.XXX", 12321))
+
+    sck.listen(1)
+
+    while(True):
+        (client, address) = sck.accept()
+        print "Client connected:", address
+        try:
+            while(True):
+            res,im = grabSBS()
+            if(res):
+                success, coded = cv2.imencode('.jpg', im)
+                if (success):
+                    height, width, channels = im.shape
+                    size = len(coded)
+                    struct.pack_into(">i", header_data , 0, width)
+                    struct.pack_into(">i", header_data , 4, height)
+                    struct.pack_into(">i", header_data , 8, size)
+                    client.sendall(header_data .raw)
+                    client.sendall(coded.tobytes())
+        except Exception as ex:
+            print "ERROR:", ex
+            client.close()
+            sck.close()
+            exit()
