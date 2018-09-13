@@ -18,7 +18,6 @@ except ImportError:
 class SendEmail:
 
     def __init__(self, _log, _conf):
-        print("_conf:{}".format(_conf))
 
         self.LOG = _log
         self.configuration = _conf

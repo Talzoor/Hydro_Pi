@@ -109,10 +109,11 @@ class WaterSwitch:
 
     def state(self, channel=None):
         print_color = ColorPrint(self.log)
+        old_state = self.switch_state
         self.switch_state = GPIO.input(self.pin)
         bool_return = (self.switch_state == self.high) and True or False
 
-        if channel is not None:
+        if (channel is not None) and (old_state is not self.switch_state):
             if bool_return:
                 self.time_open = unix_time()
                 str_time_open = ''
@@ -231,7 +232,7 @@ def setup():
         GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
 
-        GPIO.setup(PIN_MICRO_SWITCH,        GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(water_level.pin,        GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
@@ -242,7 +243,6 @@ def setup():
         water_level.state()
         solenoid_change(log, 0)
         email = SendEmail(log, EMAIL_ALERTS[1:])
-
 
     except:
         raise_exception(log, "setup")
