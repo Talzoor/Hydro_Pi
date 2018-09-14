@@ -27,8 +27,10 @@ class Logger:
         console_h.setLevel(logging.DEBUG)
 
         # create formatter and add it to the handlers
-        formatter = logging.Formatter("%(asctime)-20s%(name)-10s-%(levelname)-8s" +
-                                      "#%(message)s#", "%Y/%m/%d %H:%M:%S,%uuu")
+        #formatter = logging.Formatter("%(asctime)-20s%(name)-10s-%(levelname)-8s" +
+        #                              "#%(message)s#", "%Y/%m/%d %H:%M:%S")
+        formatter = logging.Formatter("%(asctime)-20s %(name)-10s-%(levelname)-8s" +
+                                      "|%(message)s|")
         console_h.setFormatter(formatter)
         file_h.setFormatter(formatter)
 
