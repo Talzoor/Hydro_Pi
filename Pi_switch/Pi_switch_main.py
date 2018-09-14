@@ -404,7 +404,7 @@ def close(log, _code=None):
     print_color = ColorPrint(log)
     log.debug("Cleaning GPIOs")
     GPIO.cleanup()
-    log.debug(print_color("Bye.", color_code=69))
+    log.info(print_color("Bye.", color_code=69))
     exit(_code is None and 0 or _code)
 
 
