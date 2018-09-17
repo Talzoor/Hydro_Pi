@@ -110,8 +110,8 @@ class WaterSwitch:
     def state(self, channel=None):
         print_color = ColorPrint(self.log)
         old_state = self.switch_state
-        self.switch_state = GPIO.input(self.pin)
-        bool_return = (self.switch_state == self.high) and True or False
+        self.switch_state = GPIO.input(self.pin)    # get pin state
+        bool_return = (self.switch_state == self.high) and True or False    # choose output
 
         if (channel is not None) and (old_state is not self.switch_state):
             if bool_return:
@@ -236,7 +236,7 @@ def setup():
         GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-        GPIO.add_event_detect(water_level.pin, GPIO.BOTH, callback=water_level.state, bouncetime=50)
+        # GPIO.add_event_detect(water_level.pin, GPIO.BOTH, callback=water_level.state, bouncetime=50)
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
 
         print_header(log)
