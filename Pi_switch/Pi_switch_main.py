@@ -113,11 +113,11 @@ class WaterSwitch:
         self.switch_state = GPIO.input(self.pin)    # get pin state
         bool_return = (self.switch_state == self.high) and True or False    # choose output
 
-        if (channel is not None) and (old_state is not self.switch_state):
-            if bool_return:
+        if old_state is not self.switch_state:
+            if bool_return is True:
                 self.time_open = unix_time()
                 str_time_open = ''
-            else:
+            elif bool_return is False:
                 str_time_open = ", was open for " + \
                                 str(timedelta(seconds=(unix_time() - self.time_open)))
                 self.time_open = -1
