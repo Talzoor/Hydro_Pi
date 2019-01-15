@@ -15,7 +15,8 @@ import socket
 from datetime import datetime
 from datetime import timedelta
 import linecache
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+import pigpio as GPIO
 # from sty import ef, fg, bg, rs
 from sty.register import FgRegister, BgRegister, RsRegister
 
