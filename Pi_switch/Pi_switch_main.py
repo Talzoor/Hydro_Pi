@@ -220,14 +220,14 @@ def logger_init():
 
 def setup(email_settings, taps):
     try:
+        GPIO.setmode(GPIO.BCM)
+
         init_import_project_modules()
         log = logger_init()
         tap_1 = Solenoid(log, PIN_TAP_1, 1)
         tap_2 = Solenoid(log, PIN_TAP_2, 2)
         flow_sensor = FlowSensor(log, Pi_flow_main.FLOW_PIN)
         water_level = WaterSwitch(log, PIN_MICRO_SWITCH)
-
-        GPIO.setmode(GPIO.BCM)
 
         GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
         GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
