@@ -19,20 +19,20 @@
 #     for 10 sec?        restart                                  |                         |
 #       -------         open-close                    tap 1  -------------------- tap 2     |
 # less |       | more       |                               |                    |        change
-#      -       |          report                          20 sec?               2 sec?    to tap 1 ------
+#      -       |          report                          2 sec?               20 sec?    to tap 1 ------
 #           restart       problem                           |                    |                       |
 #          open-close    (DRIPPING)                less  ---------  more   less --------- more           |
 #              |            |                           |         |            |         |             10 min?
-#              -            -                           -       change         -      change     less -------- more
-#                                                               tap 2                 to tap 1        |        |
+#              -            -                           -      is there        -      change     less -------- more
+#                                                               tap 2?                to tap 1        |        |
 #                                                                 |                      |            -    change tap 2
-#                                                                 -                      |                     |
-#                                                                                      count                 3 min?
-#                                                                                   flow sensor      less  ---------  more
-#                                                                                      faulty             |         |
-#                                                                                        |                -       close
-#                                                                                        -                          |
-#                                                                                                                 report
+#                                                              -------                   |                     |
+#                                                             |       |                 count                 3 min?
+#                                                    open tap 2     count            flow sensor      less  ---------  more
+#                                                                flow sensor            faulty             |         |
+#                                                                  faulty                |                 -       close
+#                                                                     |                  -                           |
+#                                                                     -                                           report
 #                                                                                                                 problem
 #                                                                                                               (NO WATER)
 #                                                                                                                   |
