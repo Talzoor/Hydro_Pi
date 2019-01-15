@@ -101,6 +101,7 @@ class WaterSwitch:
         self.low = True
 
         self.pin = _pin
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.switch_state = GPIO.input(self.pin)    # get pin state # = False
         self.log = _log
         self.time_open = -1
@@ -143,6 +144,7 @@ class FlowSensor:
     def __init__(self, _log, _pin):
         self.ok = True
         self.pin = _pin
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         self.faulty_count = 0
         self.start_time = 0
         self.log = _log
@@ -221,6 +223,10 @@ def logger_init():
 def setup(email_settings, taps):
     try:
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
+
+        GPIO.setup(DEBUG_FLOWING_SWITCH, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         init_import_project_modules()
         log = logger_init()
@@ -229,12 +235,7 @@ def setup(email_settings, taps):
         flow_sensor = FlowSensor(log, Pi_flow_main.FLOW_PIN)
         water_level = WaterSwitch(log, PIN_MICRO_SWITCH)
 
-        GPIO.setup(PIN_TAP_1, GPIO.OUT, initial=GPIO.HIGH)
-        GPIO.setup(PIN_TAP_2, GPIO.OUT, initial=GPIO.HIGH)
 
-        GPIO.setup(water_level.pin,        GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(flow_sensor.pin,         GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(DEBUG_FLOWING_SWITCH,    GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         # GPIO.add_event_detect(water_level.pin, GPIO.BOTH, callback=water_level.state, bouncetime=50)
         GPIO.add_event_detect(flow_sensor.pin,  GPIO.BOTH, callback=flow_in_count, bouncetime=5)
