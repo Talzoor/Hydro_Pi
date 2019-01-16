@@ -39,4 +39,4 @@ except ModuleNotFoundError:
 # email[send, no of emails each day, hr to send]
 # taps : 1 or 2 (1 is the main water, 2 is the rain/ac collect)
 
-# Pi_switch_main.run(debug=False, email=[True, 1, 20], taps=1)
+run(debug=False, email=[True, 1, 20], taps=1)
