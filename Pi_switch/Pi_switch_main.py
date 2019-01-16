@@ -7,33 +7,39 @@ except SingleInstanceException:
     exit(0)
     pass
 
-import time as time_lib
-from time import sleep
-import sys
-#from Pi_flow import Pi_flow_main
-import socket
-from datetime import datetime
-from datetime import timedelta
-import linecache
-#import RPi.GPIO as GPIO
-import pigpio as GPIO
-# from sty import ef, fg, bg, rs
-from sty.register import FgRegister, BgRegister, RsRegister
+try:
+    import time as time_lib
+    from time import sleep
+    import sys
+    #from Pi_flow import Pi_flow_main
+    import socket
+    from datetime import datetime
+    from datetime import timedelta
+    import linecache
+    import RPi.GPIO as GPIO
+
+    # from sty import ef, fg, bg, rs
+    from sty.register import FgRegister, BgRegister, RsRegister
+
+except ModuleNotFoundError:
+    print("Error (Pi_switch_main.py) - ModuleNotFoundError")
+    exit(0)
+    pass
 
 
 
 try:
-    from .tools.logger import Logger
-except ImportError:
     from tools.logger import Logger
-try:
-    from .Pi_flow import Pi_flow_main
 except ImportError:
+    from .tools.logger import Logger
+try:
     from Pi_flow import Pi_flow_main
-try:
-    from .tools.email_script import SendEmail
 except ImportError:
+    from .Pi_flow import Pi_flow_main
+try:
     from tools.email_script import SendEmail
+except ImportError:
+    from .tools.email_script import SendEmail
 
 name_rpi = socket.gethostname()
 rpi2 = (name_rpi == "RPI2")

@@ -6,7 +6,7 @@ from datetime import datetime
 import sys
 import os
 from peewee import *
-from init import db
+from __init__ import db
 from flask_peewee.admin import ModelAdmin
 
 import argparse

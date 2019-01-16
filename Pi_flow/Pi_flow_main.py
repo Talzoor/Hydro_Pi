@@ -1,20 +1,26 @@
 
 #TODO =
-import RPi.GPIO as GPIO
-from time import sleep
-from datetime import datetime
-import sys
-import os
-from peewee import *
-import socket
-#import init
-#from flask_peewee.admin import ModelAdmin
+try:
+    from time import sleep
+    from datetime import datetime
+    import sys
+    import os
+    from peewee import *
+    import socket
+    #import init
+    #from flask_peewee.admin import ModelAdmin
+    import argparse
+    import random
+    # import models
+except ModuleNotFoundError:
+    print("Error (Pi_flow_main.py) - ModuleNotFoundError")
+    # exit(0)
+    pass
 
-
-import argparse
-import random
-# import models
-
+try:
+    import RPi.GPIO as GPIO
+except ModuleNotFoundError:
+    import pigpio as GPIO
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 FILE_NAME = 'water_flow_readings.txt'

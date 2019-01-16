@@ -1,7 +1,42 @@
+import os, sys
+import linecache
+
+dirpath = os.getcwd()
+print("current directory is : " + dirpath)
+foldername = os.path.basename(dirpath)
+print("Directory name is : " + foldername)
+scriptpath = os.path.realpath(__file__)
+print("Script path is : " + scriptpath)
+# os.chdir(os.path.dirname(__file__))
+# os_getcwd = os.getcwd()
+# print(os_getcwd)
+
+# for path_str in sys.path:
+#     print(path_str, " ,")
+Pi_switch_folder = dirpath + '/Pi_switch'
+print("dir:" + Pi_switch_folder)
+sys.path.append(dirpath + '/Pi_switch')
+
+print("Pyhton ver:" + sys.version)
 
 try:
     from Pi_switch.Pi_switch_main import run
+    # print(Pi_switch)
+    # print("Pi_switch:", Pi_switch_main)
 except ModuleNotFoundError:
-    from Pi_switch_main import run
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+
+    print("\n\nfucn '{}' error: \n{}, {} \nline:{}- {}"
+          .format('MAIN', exc_type, exc_obj, lineno, line))
+    exit(0)
+    pass
+
 # email[send, no of emails each day, hr to send]
-run(debug=True, email=[True, 1, 20], taps=1)
+# taps : 1 or 2 (1 is the main water, 2 is the rain/ac collect)
+
+# Pi_switch_main.run(debug=False, email=[True, 1, 20], taps=1)
