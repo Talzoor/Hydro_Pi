@@ -32,8 +32,6 @@ except ModuleNotFoundError:
     exit(0)
     pass
 
-
-
 try:
     from tools.logger import Logger
 except ImportError:
@@ -124,6 +122,10 @@ class WaterSwitch:
         print_color = ColorPrint(self.log)
         old_state = self.switch_state
         self.switch_state = GPIO.input(self.pin)    # get pin state
+        ##### DEBUG OPTION
+        if DEBUG[1] == "float_off":
+            self.switch_state = True
+        #####
         bool_return = (self.switch_state == self.high) and True or False    # choose output
 
         if old_state is not self.switch_state:
@@ -419,7 +421,7 @@ def raise_exception(log, _str_func):
 
 def check_args(**kwargs):
     global DEBUG #, EMAIL_ALERTS
-    debug = False
+    debug = [False, "float_on"]
     email = [True, 1, 8]    # [send, how many a day, first one on(24h)]
     taps = 2
     if "debug" in kwargs:
