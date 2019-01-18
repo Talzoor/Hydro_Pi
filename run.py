@@ -42,12 +42,10 @@ except ModuleNotFoundError:
 # taps : 1 or 2 (1 is the main water, 2 is the rain/ac collect)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("float_debug", help="FOR DEBUG: choose float on or off (default is on)",
+parser.add_argument("--float_debug", help="FOR DEBUG: choose float on or off (default is on)",
                     type=str)
 args = parser.parse_args()
 if args.float_debug is None:
     args.float_debug = "float_on"
-print("float_debug:" + args.float_debug)
-
 
 run(debug=[False, args.float_debug], email=[True, 1, 20], taps=1)

@@ -124,7 +124,7 @@ class WaterSwitch:
         self.switch_state = GPIO.input(self.pin)    # get pin state
         ##### DEBUG OPTION
         if DEBUG[1] == "float_off":
-            self.switch_state = True
+            self.switch_state = False
         #####
         bool_return = (self.switch_state == self.high) and True or False    # choose output
 
