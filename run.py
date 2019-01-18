@@ -1,23 +1,23 @@
 import os, sys
 import linecache
 
-dirpath = os.getcwd()
-print("current directory is : " + dirpath)
-foldername = os.path.basename(dirpath)
-print("Directory name is : " + foldername)
-scriptpath = os.path.realpath(__file__)
-print("Script path is : " + scriptpath)
-# os.chdir(os.path.dirname(__file__))
-# os_getcwd = os.getcwd()
-# print(os_getcwd)
-
-# for path_str in sys.path:
-#     print(path_str, " ,")
-Pi_switch_folder = dirpath + '/Pi_switch'
-print("dir:" + Pi_switch_folder)
-sys.path.append(dirpath + '/Pi_switch')
-
-print("Pyhton ver:" + sys.version)
+# dirpath = os.getcwd()
+# print("current directory is : " + dirpath)
+# foldername = os.path.basename(dirpath)
+# print("Directory name is : " + foldername)
+# scriptpath = os.path.realpath(__file__)
+# print("Script path is : " + scriptpath)
+# # os.chdir(os.path.dirname(__file__))
+# # os_getcwd = os.getcwd()
+# # print(os_getcwd)
+#
+# # for path_str in sys.path:
+# #     print(path_str, " ,")
+# Pi_switch_folder = dirpath + '/Pi_switch'
+# print("dir:" + Pi_switch_folder)
+# sys.path.append(dirpath + '/Pi_switch')
+#
+# print("Pyhton ver:" + sys.version)
 
 try:
     from Pi_switch.Pi_switch_main import run

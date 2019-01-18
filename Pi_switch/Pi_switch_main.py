@@ -8,6 +8,7 @@ except SingleInstanceException:
     pass
 
 try:
+    sys_platforemail_alertsm = sys.platform
     import time as time_lib
     from time import sleep
     import sys
@@ -16,7 +17,12 @@ try:
     from datetime import datetime
     from datetime import timedelta
     import linecache
-    import RPi.GPIO as GPIO
+
+    print("system platform: " + sys_platform)
+    if "linux" in sys_platform.lower():
+        import RPi.GPIO as GPIO
+    else:
+        from GPIOEmulator.EmulatorGUI import GPIO
 
     # from sty import ef, fg, bg, rs
     from sty.register import FgRegister, BgRegister, RsRegister
@@ -68,7 +74,7 @@ LOG_FILE_W_PATH     = ""
 
 MICRO_S_CHANGE      = False
 
-EMAIL_ALERTS        = []
+#email_alerts        = []
 DEBUG_FLOWING_SWITCH = 26
 DEBUG                = False
 
@@ -125,7 +131,7 @@ class WaterSwitch:
                 self.time_open = unix_time()
                 str_time_open = ''
             elif bool_return is False:
-                str_time_open = ", 111was open for " + \
+                str_time_open = ", was open for " + \
                                 str(timedelta(seconds=(unix_time() - self.time_open)))
                 self.time_open = -1
 
@@ -375,21 +381,21 @@ def solenoid_change(log, _int_tap_number):
         raise_exception(log, "open_solenoid({})".format(_int_tap_number))
 
 
-def something_wrong(log, email, _str_msg):
-    global EMAIL_ALERTS
+def something_wrong(log, email_alerts, email_handle, _str_msg):
+    #global EMAIL_ALERTS
     str_msg = _str_msg.upper()
     str_msg_w_time = datetime.now().strftime('%H:%M:%S') + ' ' + _str_msg
 
     log.warning("something wrong: {}".format(str_msg))
     # print("EMAIL_ALERTS:{}".format(EMAIL_ALERTS))
-    print("EMAIL_ALRETS[0]:{}, [1]:{}, [2]:{}".format(
-        EMAIL_ALERTS[0],
-        EMAIL_ALERTS[1],
-        EMAIL_ALERTS[2]
+    print("email_alerts[0]:{}, [1]:{}, [2]:{}".format(
+        email_alerts[0],
+        email_alerts[1],
+        email_alerts[2]
     ))
-    if EMAIL_ALERTS[0] is True:
+    if email_alerts[0] is True:
         str_subject = "-- Hydro Pi alert -- {}".format(str_msg)
-        email.send(subject=str_subject, msg=str_msg_w_time, log_file=LOG_FILE_W_PATH)
+        email_handle.send(subject=str_subject, msg=str_msg_w_time, log_file=LOG_FILE_W_PATH)
 
 
 def raise_exception(log, _str_func):
@@ -433,12 +439,12 @@ def check_args(**kwargs):
     return email, taps
 
 
-def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
+def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, email_handle):
 
     try:
         state_2 = GPIO.input(DEBUG_FLOWING_SWITCH)
         if state_2:
-            something_wrong(log, email, "test")
+            something_wrong(log, email_alerts, email_handle, "test")
 
         flowing = check_flow(log, 2)
         solenoid_open = tap_1.state() or tap_2.state()
@@ -474,7 +480,7 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
                                 tap_1.open()
                                 if tap_1.time_open() >= minutes(3):   # more than 3 min?
                                     solenoid_change(log, 0)      # close all taps
-                                    something_wrong(log, email, "NO WATER OR FLOAT BAD")     # no water
+                                    something_wrong(log, email_alerts, email_handle, "NO WATER OR FLOAT BAD")     # no water
                                 elif tap_1.time_open() < minutes(3):                       # less than 3 min
                                     pass                    # nothing
                             elif tap_2.time_open() > minutes(10):                           # less than 10 min
@@ -482,7 +488,7 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
                         elif taps_no == 1:
                             if tap_1.time_open() >= minutes(3):  # more than 3 min?
                                 solenoid_change(log, 0)  # close all taps
-                                something_wrong(log, email, "NO WATER OR FLOAT BAD")  # no water
+                                something_wrong(log, email_alerts, email_handle, "NO WATER OR FLOAT BAD")  # no water
                             elif tap_1.time_open() < minutes(3):  # less than 3 min
                                 pass  # nothing
 
@@ -492,14 +498,14 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
         elif water_level.state() is False:                          # water level ok
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
-                something_wrong(log, email, "FLOW SENSOR BAD")
+                something_wrong(log, email_alerts, email_handle, "FLOW SENSOR BAD")
             if solenoid_open:
                 solenoid_change(log, 0)                          # close all taps
             if flowing:
                 if FlowSensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
                     tap_2.restart()
-                    something_wrong(log, email, "DRIPPING")
+                    something_wrong(log, email_alerts, email_handle, "DRIPPING")
                 elif FlowSensor.time_flowing() < 30:                                   # if flowing less than 30 sec?
                     if FlowSensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
@@ -508,7 +514,7 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
         raise_exception(log, "decide")
 
 
-def main(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
+def main(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, email_handle):
     global NEED_TO_CLOSE, MICRO_S_CHANGE, WATER_LEVEL_SWITCH
 
     try:
@@ -518,7 +524,7 @@ def main(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
         while True:
             time_now = unix_time()
             sys.stdout.flush()
-            decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email)
+            decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, email_handle)
             sleep(CHECK_EVERY)
 
 
@@ -533,9 +539,9 @@ def main(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email):
 
 
 def run(**kwargs):
-    email, taps = check_args(**kwargs)
-    log, tap_1, tap_2, flow_sensor, water_level, email = setup(email, taps)
-    main(log, taps, tap_1, tap_2, flow_sensor, water_level, email)
+    email_alerts, taps = check_args(**kwargs)
+    log, tap_1, tap_2, flow_sensor, water_level, email_handle = setup(email_alerts, taps)
+    main(log, taps, tap_1, tap_2, flow_sensor, water_level, email_alerts, email_handle)
 
 
 if __name__ == '__main__':
