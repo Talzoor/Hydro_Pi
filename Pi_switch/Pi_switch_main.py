@@ -8,7 +8,7 @@ except SingleInstanceException:
     pass
 
 try:
-    sys_platforemail_alertsm = sys.platform
+    sys_platform = sys.platform
     import time as time_lib
     from time import sleep
     import sys
