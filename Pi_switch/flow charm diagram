@@ -5,19 +5,19 @@
 #       high ------------------------------------ low
 #        |                                       |
 #        |                                   WaterSwitch
-#        |                                    is faulty? ---- yes ---
+#      close                                  is faulty? ---- yes ---
 #        |                                      (>0)                 |
-#        |                                       |          abs(int_hr-w_l.flty)=12 ?
+#        |---water_level.faulty=0                |          abs(int_hr-w_l.flty)=12 ?
 #        |                                       no                  |
 #        |                                       |                    ----------------------
-#      close                                solenoid open?                      no |        | yes
-#        |----------tap (1/2) was open           |           yes - 1 or 2          -        |
-#        |          for more than          no ---------------                          water_level.
-#      flow?        2 min? faulty?           |               |                          faulty=0
-#        |                    |           open 1             | flow?                        |
-# no ----------- yes        report           |      yes  ----------------  no               -
-#  |               |    (FLOW SENSOR)        -          |                |
-#  -          for 30 sec?                               -                |
+#        |----------tap (1/2) was open      solenoid open?                      no |        | yes
+#        |            for more than              |           yes - 1 or 2          -        |
+#        |            2 min? faulty?        no ---------------                          water_level.
+#     flowing?                |               |               |                          faulty=0
+#        |                  report         open 1             | flow?                        |
+# no ----------- yes     (FLOW SENSOR)        |      yes  ----------------  no               -
+#  |               |                          -          |                |
+#  -          for 30 sec?                                -                |
 #                  |                                                 flow sensor (more than)
 #           no ------------- yes                                     is ok?      (count 5? )
 #             |             |                                  yes --------------------------------------- no

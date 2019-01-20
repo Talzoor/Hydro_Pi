@@ -517,11 +517,11 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, e
                 elif not solenoid_open:                                       # Solenoid close
                     tap_1.open()                            # open tap 1
         elif water_level.state() is False:                          # water level ok
+            solenoid_change(log, 0)                          # close all taps
+            water_level.faulty = 0
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
                 something_wrong(log, email_alerts, email_handle, "FLOW SENSOR BAD")
-            if solenoid_open:
-                solenoid_change(log, 0)                          # close all taps
             if flowing:
                 if flow_sensor.time_flowing() >= 30:      # flowing more than 30 sec?
                     tap_1.restart()                     # restart taps
@@ -531,6 +531,8 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, e
                     if flow_sensor.time_flowing() > 10:  # flowing more than 10 sec?
                         tap_1.restart()                 # restart taps
                         tap_2.restart()
+            else:       # no flow
+                pass
     except:
         raise_exception(log, "decide")
 
