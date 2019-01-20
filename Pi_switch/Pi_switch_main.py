@@ -507,6 +507,7 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, e
                                     solenoid_change(log, 0)  # close all taps
                                     if water_level.faulty <= -5:     # float is not going up
                                         water_level.faulty = int_hr()       # save the 24hr time
+                                        log.warning("Closing system for 12 hours.")
                                     elif water_level.faulty > -5:    # float still considered ok
                                         water_level.faulty -= 1
                                         something_wrong(log, email_alerts, email_handle,
