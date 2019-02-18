@@ -50,4 +50,4 @@ args = parser.parse_args()
 if args.float_debug is None:
     args.float_debug = "float_on"
 
-run(debug=[False, args.float_debug], email=[True, 1, 20], taps=1)
+run(debug=[False, args.float_debug], email=[True, 1, 8], taps=1)

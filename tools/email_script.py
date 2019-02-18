@@ -110,10 +110,10 @@ class SendEmail:
         line = linecache.getline(filename, lineno, f.f_globals)
         self.LOG.warning("\n\nfucn '{}' error: \n{}, {} \nline:{}- {}".format(_str_func, exc_type, exc_obj, lineno, line))
 
-    def check_send_time(self, vars):
+    def check_send_time(self, conf_vars):
         send_it = False
-        days = int(vars[0])
-        time_hr = int(vars[1])
+        days = int(conf_vars[0])
+        time_hr = int(conf_vars[1])
         if self.sent_today >= 1:
             hr_now = int(datetime.now().strftime('%H'))
             min_now = int(datetime.now().strftime('%M'))
