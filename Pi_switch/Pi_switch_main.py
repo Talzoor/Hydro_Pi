@@ -518,7 +518,7 @@ def decide(log, taps_no, tap_1, tap_2, flow_sensor, water_level, email_alerts, e
                     tap_1.open()                            # open tap 1
         elif water_level.state() is False:                          # water level ok
             if solenoid_open:
-                solenoid_change(log, 0)                          # close all taps
+                # solenoid_change(log, 0)                          # close all taps
             water_level.faulty = 0
             if (not flow_sensor.ok) and \
                     (tap_1.time_open() > minutes(2) or tap_2.time_open() > minutes(2)):
